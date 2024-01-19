@@ -1,5 +1,5 @@
 import { createElement } from '../render.js';
-import { getCityDescription } from '../mock/route.js';
+import { getCityDescription } from '../mock/routes.js';
 import { humanizeDate } from '../utils.js';
 
 const createOffersList = (offers) => {
@@ -86,7 +86,7 @@ class EditRouteFormView {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
                     <datalist id="destination-list-1">
                       <option value="Amsterdam"></option>
                       <option value="Geneva"></option>
@@ -127,7 +127,7 @@ class EditRouteFormView {
 
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${destination} ${getCityDescription(destination)}</p>
+                    <p class="event__destination-description">${destination.name} ${destination.description}</p>
                   </section>
                 </section>
               </form>

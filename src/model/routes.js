@@ -1,4 +1,4 @@
-import { getRandomRoute } from '../mock/route.js';
+import { getRandomRoute } from '../mock/routes.js';
 
 const ROUTES_COUNT = 5;
 

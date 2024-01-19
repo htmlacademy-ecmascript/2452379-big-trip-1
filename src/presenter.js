@@ -6,15 +6,24 @@ import { RouteView } from './view/route.js';
 import { RoutesContainerView } from './view/routes-container.js';
 import { AddRouteFormView } from './view/add-route-form.js';
 import { EditRouteFormView } from './view/edit-route-form.js';
-import RoutesModel from './model/route.js';
+import RoutesModel from './model/routes.js';
+import DestinationsModel from './model/destinations.js';
+import OffersModel from './model/offers.js';
 import { render, RenderPosition } from './render.js';
 
 class Presenter {
   constructor() {
+    this.offersModel = new OffersModel();
+
     this.routesModel = new RoutesModel();
     this.routes = [...this.routesModel.getRoutes()];
-    this.EditRouteForm = new EditRouteFormView(this.routes.shift());
-    this.routeViews = this.routes.map((route) => new RouteView(route));
+    this.routeViews = this.routes.map((route) => new RouteView({...route, offers: this.offersModel.getOffers()}));
+
+    this.destinationsModel = new DestinationsModel();
+    this.destinations = [...this.destinationsModel.getDestinations()];
+    this.EditRouteForm = new EditRouteFormView({...(this.routes.shift()), offers: this.offersModel.getOffers(), destination: this.destinations[0]});
+
+
     this.filtersForm = new FiltersFormView();
     this.sortsForm = new SortsFormView();
     this.routesContainer = new RoutesContainerView();
