@@ -1,16 +1,33 @@
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+
+dayjs.extend(duration);
 
 const DATE_FORMAT = {
   eventTime: 'HH:mm',
   eventDate: 'DD MMM',
   eventEditDatetime: 'DD/MM/YY HH:mm'
 };
+
+const MSEC_IN_HOUR = 3600000;
+const MSEC_IN_DAY = 86400000;
+
+
 const humanizeDate = (date, format) => date ? dayjs(date).format(DATE_FORMAT[format]) : '';
-const humanizeDuration = (minutes) => {
-  minutes = Math.round(minutes / (1000));
-  return `${Math.trunc(minutes / 3600) > 0 ? `${Math.trunc(minutes / 3600)}H ${(minutes % 3600) / 60}` : minutes / 60}M`;
+
+const calcEventDuration = (dt1, dt2) => {
+  const diff = dayjs(dt2).diff(dayjs(dt1));
+
+  switch(true){
+    case diff >= MSEC_IN_DAY:
+      return dayjs.duration(diff).format('DD[D] HH[H] mm[M]');
+    case diff >= MSEC_IN_HOUR:
+      return dayjs.duration(diff).format('HH[H] mm[M]');
+    case diff < MSEC_IN_HOUR:
+      return dayjs.duration(diff).format('mm[M]');
+  }
 };
-const calcEventDuration = (dt1, dt2) => dt1 && dt2 ? humanizeDuration(new Date(dt2).getTime() - new Date(dt1).getTime()) : '';
+
 
 const generateRandomInteger = (min, max) => {
   const lower = Math.ceil(Math.min(min, max));

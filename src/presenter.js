@@ -26,6 +26,7 @@ class Presenter {
       new SortView('Day', 'day'), new SortView('Route', 'event'), new SortView('Time', 'time'),
       new SortView('Price', 'price'), new SortView('Offers', 'offers')
     ];
+    this.addRouteForm = new AddRouteFormView();
   }
 
   present() {
