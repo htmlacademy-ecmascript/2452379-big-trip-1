@@ -1,6 +1,6 @@
 import { createElement } from '../render.js';
 
-class EventsContainerComponent {
+class RoutesContainerView {
   element = createElement('<ul class="trip-events__list"></ul>');
 
   getElement() {
@@ -8,4 +8,4 @@ class EventsContainerComponent {
   }
 }
 
-export { EventsContainerComponent };
+export { RoutesContainerView };

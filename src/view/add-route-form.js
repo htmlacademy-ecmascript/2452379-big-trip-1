@@ -1,6 +1,6 @@
 import { createElement } from '../render.js';
 
-class AddEventFormComponent {
+class AddRouteFormView {
   constructor() {
     this.element = createElement(`
     <li class="trip-events__item"><form class="event event--edit" action="#" method="post">
@@ -171,5 +171,5 @@ class AddEventFormComponent {
   }
 }
 
-export { AddEventFormComponent };
+export { AddRouteFormView };
 

@@ -1,6 +1,6 @@
 import { createElement } from '../render.js';
 
-class SortComponent {
+class SortView {
   constructor(label, type) {
     this.element = createElement(`
     <div class="trip-sort__item  trip-sort__item--${type}">
@@ -14,4 +14,4 @@ class SortComponent {
   }
 }
 
-export { SortComponent };
+export { SortView };
