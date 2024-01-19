@@ -1,5 +1,4 @@
 import { createElement } from '../render.js';
-import { getCityDescription } from '../mock/routes.js';
 import { humanizeDate } from '../utils.js';
 
 const createOffersList = (offers) => {

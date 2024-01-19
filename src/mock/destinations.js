@@ -13,17 +13,13 @@ const getRandomDestination = () => {
   const name = getRandomArrayElement(Object.keys(citiesDescriptions));
   const description = citiesDescriptions[name];
   const id = crypto.randomUUID;
+  const pics = Array.from({ length: generateRandomInteger(0,4) }, () => ({'src': `http://loremflickr.com/300/200?random=${generateRandomInteger(1,100)}`, 'description': `${name}`}));
 
   return ({
     'id': id,
     'name': name,
     'description': description,
-    'pictures': [
-      {
-        'src': `http://loremflickr.com/300/200?random=${id}`,
-        'description': `${name} parliament building`
-      }
-    ]
+    'pictures': pics
   });
 };
 

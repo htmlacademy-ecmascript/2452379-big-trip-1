@@ -21,7 +21,7 @@ class Presenter {
 
     this.destinationsModel = new DestinationsModel();
     this.destinations = [...this.destinationsModel.getDestinations()];
-    this.EditRouteForm = new EditRouteFormView({...(this.routes.shift()), offers: this.offersModel.getOffers(), destination: this.destinations[0]});
+    this.editRouteForm = new EditRouteFormView({...(this.routes.shift()), offers: this.offersModel.getOffers(), destination: this.destinations[0]});
 
 
     this.filtersForm = new FiltersFormView();
@@ -35,14 +35,15 @@ class Presenter {
       new SortView('Day', 'day'), new SortView('Route', 'event'), new SortView('Time', 'time'),
       new SortView('Price', 'price'), new SortView('Offers', 'offers')
     ];
-    this.addRouteForm = new AddRouteFormView();
+    this.addRouteForm = new AddRouteFormView({...(this.routes.shift()), offers: this.offersModel.getOffers(), destination: this.destinations[0]});
   }
 
   present() {
     render(this.filtersForm, document.querySelector('.trip-controls__filters'));
     render(this.sortsForm, document.querySelector('.trip-events'));
     render(this.routesContainer, this.sortsForm.element, RenderPosition.AFTEREND);
-    render(this.EditRouteForm, this.routesContainer.element);
+    render(this.addRouteForm, this.routesContainer.element);
+    render(this.editRouteForm, this.routesContainer.element);
 
     this.filters.forEach((filter) => render(filter, this.filtersForm.element));
     this.sorts.forEach((sort) => render(sort, this.sortsForm.element));
