@@ -1,6 +1,6 @@
 import { createElement } from '../render.js';
 
-class SortsFormComponent {
+class SortsFormView {
   element = createElement('<form class="trip-events__trip-sort  trip-sort" action="#" method="get"></form>');
 
   getElement() {
@@ -8,4 +8,4 @@ class SortsFormComponent {
   }
 }
 
-export { SortsFormComponent };
+export { SortsFormView };

@@ -1,41 +1,53 @@
-import { FilterComponent } from './view/filter.js';
-import { FiltersFormComponent } from './view/filters-form.js';
-import { SortComponent } from './view/sort.js';
-import { SortsFormComponent } from './view/sorts-form.js';
-import { EventComponent } from './view/event.js';
-import { EventsContainerComponent } from './view/events-container.js';
-import { AddEventFormComponent } from './view/add-event-form.js';
-import { EditEventFormComponent } from './view/edit-event-form.js';
+import { FilterView } from './view/filter.js';
+import { FiltersFormView } from './view/filters-form.js';
+import { SortView } from './view/sort.js';
+import { SortsFormView } from './view/sorts-form.js';
+import { RouteView } from './view/route.js';
+import { RoutesContainerView } from './view/routes-container.js';
+import { AddRouteFormView } from './view/add-route-form.js';
+import { EditRouteFormView } from './view/edit-route-form.js';
+import RoutesModel from './model/routes.js';
+import DestinationsModel from './model/destinations.js';
+import OffersModel from './model/offers.js';
 import { render, RenderPosition } from './render.js';
 
 class Presenter {
   constructor() {
-    this.filtersForm = new FiltersFormComponent();
-    this.sortsForm = new SortsFormComponent();
-    this.eventsContainer = new EventsContainerComponent();
+    this.offersModel = new OffersModel();
+
+    this.routesModel = new RoutesModel();
+    this.routes = [...this.routesModel.getRoutes()];
+    this.routeViews = this.routes.map((route) => new RouteView({...route, offers: this.offersModel.getOffers()}));
+
+    this.destinationsModel = new DestinationsModel();
+    this.destinations = [...this.destinationsModel.getDestinations()];
+    this.editRouteForm = new EditRouteFormView({...(this.routes.shift()), offers: this.offersModel.getOffers(), destination: this.destinations[0]});
+
+
+    this.filtersForm = new FiltersFormView();
+    this.sortsForm = new SortsFormView();
+    this.routesContainer = new RoutesContainerView();
     this.filters = [
-      new FilterComponent('Everything', 'everything'), new FilterComponent('Future', 'future'),
-      new FilterComponent('Present', 'present'), new FilterComponent('Past', 'past')
+      new FilterView('Everything', 'everything'), new FilterView('Future', 'future'),
+      new FilterView('Present', 'present'), new FilterView('Past', 'past')
     ];
     this.sorts = [
-      new SortComponent('Day', 'day'), new SortComponent('Event', 'event'), new SortComponent('Time', 'time'),
-      new SortComponent('Price', 'price'), new SortComponent('Offers', 'offers')
+      new SortView('Day', 'day'), new SortView('Route', 'event'), new SortView('Time', 'time'),
+      new SortView('Price', 'price'), new SortView('Offers', 'offers')
     ];
-    this.addEventForm = new AddEventFormComponent();
-    this.events = [
-      new EditEventFormComponent(), new EventComponent(), new EventComponent(), new EventComponent()
-    ];
+    this.addRouteForm = new AddRouteFormView({...(this.routes.shift()), offers: this.offersModel.getOffers(), destination: this.destinations[0]});
   }
 
   present() {
     render(this.filtersForm, document.querySelector('.trip-controls__filters'));
     render(this.sortsForm, document.querySelector('.trip-events'));
-    render(this.eventsContainer, this.sortsForm.element, RenderPosition.AFTEREND);
-    render(this.addEventForm, this.eventsContainer.element);
+    render(this.routesContainer, this.sortsForm.element, RenderPosition.AFTEREND);
+    render(this.addRouteForm, this.routesContainer.element);
+    render(this.editRouteForm, this.routesContainer.element);
 
     this.filters.forEach((filter) => render(filter, this.filtersForm.element));
     this.sorts.forEach((sort) => render(sort, this.sortsForm.element));
-    this.events.forEach((event) => render(event, this.eventsContainer.element));
+    this.routeViews.forEach((route) => render(route, this.routesContainer.element));
   }
 }
 

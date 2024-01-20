@@ -1,6 +1,6 @@
 import { createElement } from '../render.js';
 
-class FilterComponent {
+class FilterView {
   constructor(label, type) {
     this.element = createElement(`
     <div class="trip-filters__filter">
@@ -14,4 +14,4 @@ class FilterComponent {
   }
 }
 
-export { FilterComponent };
+export { FilterView };
