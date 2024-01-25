@@ -9,7 +9,8 @@ import FilterView from './view/filter.js';
 import FiltersFormView from './view/filters-form.js';
 import SortView from './view/sort.js';
 import SortsFormView from './view/sorts-form.js';
-import { render, RenderPosition } from './framework/render.js';
+import { render, replace, RenderPosition } from './framework/render.js';
+import { onEscKeydownDo } from './utils/utils.js';
 
 export default class Presenter {
   #routesModel;
@@ -17,14 +18,12 @@ export default class Presenter {
   #destinationsModel;
 
   #routes;
-  #routeViews;
   #routesContainerView;
   #addRouteFormView;
-  #editRouteFormView;
 
   #filters;
   #filtersFormView;
-  #sorts;
+  #sortViews;
   #sortsFormView;
   #destinations;
 
@@ -33,11 +32,9 @@ export default class Presenter {
 
     this.#routesModel = new RoutesModel();
     this.#routes = [...this.#routesModel.getRoutes()];
-    this.#routeViews = this.#routes.map((route) => new RouteView({...route, offers: this.#offersModel.getOffers()}));
 
     this.#destinationsModel = new DestinationsModel();
     this.#destinations = [...this.#destinationsModel.getDestinations()];
-    this.#editRouteFormView = new EditRouteFormView({...(this.#routes.shift()), offers: this.#offersModel.getOffers(), destination: this.#destinations[0]});
 
 
     this.#filtersFormView = new FiltersFormView();
@@ -47,22 +44,53 @@ export default class Presenter {
       new FilterView({label: 'Everything', type: 'everything'}), new FilterView({label: 'Future', type: 'future'}),
       new FilterView({label: 'Present', type: 'present'}), new FilterView({label: 'Past', type: 'past'})
     ];
-    this.#sorts = [
+    this.#sortViews = [
       new SortView({label: 'Day', type: 'day'}), new SortView({label: 'Route', type: 'event'}), new SortView({label: 'Time', type: 'time'}),
       new SortView({label: 'Price', type: 'price'}), new SortView({label: 'Offers', type: 'offers'})
     ];
-    this.#addRouteFormView = new AddRouteFormView({...(this.#routes.shift()), offers: this.#offersModel.getOffers(), destination: this.#destinations[0]});
   }
 
   present() {
     render(this.#filtersFormView, document.querySelector('.trip-controls__filters'));
     render(this.#sortsFormView, document.querySelector('.trip-events'));
     render(this.#routesContainerView, this.#sortsFormView.element, RenderPosition.AFTEREND);
-    render(this.#addRouteFormView, this.#routesContainerView.element);
-    render(this.#editRouteFormView, this.#routesContainerView.element);
 
     this.#filters.forEach((filter) => render(filter, this.#filtersFormView.element));
-    this.#sorts.forEach((sort) => render(sort, this.#sortsFormView.element));
-    this.#routeViews.forEach((route) => render(route, this.#routesContainerView.element));
+    this.#sortViews.forEach((sort) => render(sort, this.#sortsFormView.element));
+    for (let i = 0; i < this.#routes.length; i++) {
+      this.#renderRoute(this.#routes[i]);
+    }
+  }
+
+  #renderRoute(route) {
+    const escKeydownHandler = onEscKeydownDo(() => {
+      replaceFormToRoute();
+      document.removeEventListener('keydown', escKeydownHandler);
+    });
+
+    const editRouteView = new EditRouteFormView({
+      route,
+      onSubmit: () => {
+        replaceFormToRoute();
+        document.removeEventListener('keydown', escKeydownHandler);
+      },
+      onArrowClick: () => replaceFormToRoute()
+    });
+    const routeView = new RouteView({
+      route,
+      onArrowClick: () => {
+        replaceRouteToForm();
+        document.addEventListener('keydown', escKeydownHandler);
+      }
+    });
+
+    function replaceRouteToForm() {
+      replace(editRouteView, routeView);
+    }
+    function replaceFormToRoute() {
+      replace(routeView, editRouteView);
+    }
+
+    render(routeView, this.#routesContainerView.element);
   }
 }

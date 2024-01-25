@@ -1,5 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { humanizeDate, calcEventDuration } from '../utils.js';
+import { humanizeDate, calcEventDuration } from '../utils/views.js';
+import { wrapHandler } from '../utils/utils.js';
 
 const createOffersList = (offers) => {
   let result = '';
@@ -50,9 +51,10 @@ const createTemplate = ({type, destination, dateFrom, dateTo, offers, price}) =>
 export default class RouteView extends AbstractView {
   #route;
 
-  constructor(routeData) {
+  constructor({route, onArrowClick}) {
     super();
-    this.#route = routeData;
+    this.#route = route;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', wrapHandler(onArrowClick));
   }
 
   get template() {

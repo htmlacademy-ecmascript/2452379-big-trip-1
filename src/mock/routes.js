@@ -1,4 +1,4 @@
-import { getRandomArrayElement } from '../utils.js';
+import { getRandomArrayElement } from '../utils/utils.js';
 
 const routeTypes = [ 'Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant' ];
 

@@ -1,5 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { humanizeDate } from '../utils.js';
+import { humanizeDate } from '../utils/views.js';
+import { wrapHandler } from '../utils/utils.js';
 
 const createOffersList = (offers) => {
   let result = '';
@@ -144,9 +145,9 @@ const createTemplate = ({type, destination, dateFrom, dateTo, offers, price}) =>
 export default class AddRouteFormView extends AbstractView {
   #route;
 
-  constructor(routeData) {
+  constructor(route) {
     super();
-    this.#route = routeData;
+    this.#route = route;
   }
 
   get template() {
