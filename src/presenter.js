@@ -28,14 +28,11 @@ export default class Presenter {
   #destinations;
 
   constructor() {
-    this.#offersModel = new OffersModel();
-
     this.#routesModel = new RoutesModel();
-    this.#routes = [...this.#routesModel.getRoutes()];
-
+    this.#offersModel = new OffersModel();
     this.#destinationsModel = new DestinationsModel();
-    this.#destinations = [...this.#destinationsModel.getDestinations()];
 
+    this.#routes = [...this.#routesModel.getRoutes()];
 
     this.#filtersFormView = new FiltersFormView();
     this.#sortsFormView = new SortsFormView();

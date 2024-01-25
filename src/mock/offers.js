@@ -1,4 +1,6 @@
-import { getRandomArrayElement } from '../utils/utils.js';
+import { generateRandomInteger, getRandomArrayElement, getRandomArraySlice } from '../utils/utils.js';
+
+const OFFERS_COUNT = 4;
 
 const offers = [
   {
@@ -58,6 +60,12 @@ const offers = [
   },
 ];
 
-const getRandomOffer = () => getRandomArrayElement(offers);
+const getRandomOffers = (type) => {
+  const offerByType = offers.find((offer) => offer.type === type);
+  if (offerByType) {
+    return getRandomArraySlice(offerByType.offers);
+  }
+  return [];
+};
 
-export { getRandomOffer };
+export { getRandomOffers };
