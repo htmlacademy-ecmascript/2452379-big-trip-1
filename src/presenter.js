@@ -45,6 +45,7 @@ export default class Presenter {
       new SortView({label: 'Day', type: 'day'}), new SortView({label: 'Route', type: 'event'}), new SortView({label: 'Time', type: 'time'}),
       new SortView({label: 'Price', type: 'price'}), new SortView({label: 'Offers', type: 'offers'})
     ];
+    this.#addRouteFormView = new AddRouteFormView();
   }
 
   present() {

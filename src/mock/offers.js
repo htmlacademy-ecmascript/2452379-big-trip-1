@@ -1,6 +1,4 @@
-import { generateRandomInteger, getRandomArrayElement, getRandomArraySlice } from '../utils/utils.js';
-
-const OFFERS_COUNT = 4;
+import { getRandomArraySlice } from '../utils/utils.js';
 
 const offers = [
   {
