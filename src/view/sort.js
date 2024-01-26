@@ -1,17 +1,22 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
-class SortView {
-  constructor(label, type) {
-    this.element = createElement(`
-    <div class="trip-sort__item  trip-sort__item--${type}">
-      <input label="sort-${type}" class="trip-sort__input  visually-hidden" type="radio" label="trip-sort" value="sort-${type}" checked>
-      <label class="trip-sort__btn" for="sort-${type}">${label}</label>
-    </div>`);
+const createTemplate = ({ label, type }) => `
+<div class="trip-sort__item  trip-sort__item--${type}">
+  <input label="sort-${type}" class="trip-sort__input  visually-hidden" type="radio" label="trip-sort" value="sort-${type}" checked>
+  <label class="trip-sort__btn" for="sort-${type}">${label}</label>
+</div>
+`;
+
+export default class SortView extends AbstractView {
+  #sort;
+
+  constructor(sortData) {
+    super();
+    this.#sort = sortData;
   }
 
-  getElement() {
-    return this.element;
+  get template() {
+    return createTemplate(this.#sort);
   }
 }
 
-export { SortView };
