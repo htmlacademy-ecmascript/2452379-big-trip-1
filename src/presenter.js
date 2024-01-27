@@ -9,6 +9,7 @@ import FilterView from './view/filter.js';
 import FiltersFormView from './view/filters-form.js';
 import SortView from './view/sort.js';
 import SortsFormView from './view/sorts-form.js';
+import RoutesListMessageView from './view/routes-list-message.js';
 import { render, replace, RenderPosition } from './framework/render.js';
 import { onEscKeydownDo } from './utils/utils.js';
 
@@ -20,6 +21,7 @@ export default class Presenter {
   #routes;
   #routesContainerView;
   #addRouteFormView;
+  #routesListMessageView
 
   #filters;
   #filtersFormView;
@@ -38,14 +40,15 @@ export default class Presenter {
     this.#sortsFormView = new SortsFormView();
     this.#routesContainerView = new RoutesContainerView();
     this.#filters = [
-      new FilterView({label: 'Everything', type: 'everything'}), new FilterView({label: 'Future', type: 'future'}),
-      new FilterView({label: 'Present', type: 'present'}), new FilterView({label: 'Past', type: 'past'})
+      new FilterView({ label: 'Everything', type: 'everything' }), new FilterView({ label: 'Future', type: 'future' }),
+      new FilterView({ label: 'Present', type: 'present' }), new FilterView({ label: 'Past', type: 'past' })
     ];
     this.#sortViews = [
-      new SortView({label: 'Day', type: 'day'}), new SortView({label: 'Route', type: 'event'}), new SortView({label: 'Time', type: 'time'}),
-      new SortView({label: 'Price', type: 'price'}), new SortView({label: 'Offers', type: 'offers'})
+      new SortView({ label: 'Day', type: 'day' }), new SortView({ label: 'Route', type: 'event' }), new SortView({ label: 'Time', type: 'time' }),
+      new SortView({ label: 'Price', type: 'price' }), new SortView({ label: 'Offers', type: 'offers' })
     ];
     this.#addRouteFormView = new AddRouteFormView();
+    this.#routesListMessageView = new RoutesListMessageView();
   }
 
   present() {
@@ -54,6 +57,12 @@ export default class Presenter {
     render(this.#routesContainerView, this.#sortsFormView.element, RenderPosition.AFTEREND);
 
     this.#filters.forEach((filter) => render(filter, this.#filtersFormView.element));
+
+    if (!this.#routes.length) {
+      render(this.#routesListMessageView, this.#routesContainerView.element);
+      return;
+    }
+
     this.#sortViews.forEach((sort) => render(sort, this.#sortsFormView.element));
     for (let i = 0; i < this.#routes.length; i++) {
       this.#renderRoute(this.#routes[i]);
