@@ -21,7 +21,7 @@ export default class Presenter {
   #routes;
   #routesContainerView;
   #addRouteFormView;
-  #routesListMessageView
+  #routesListMessageView;
 
   #filters;
   #filtersFormView;
