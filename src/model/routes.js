@@ -1,6 +1,6 @@
 import { getRandomRoute } from '../mock/routes.js';
 
-const ROUTES_COUNT = 6;
+const ROUTES_COUNT = 0;
 
 export default class RoutesModel {
   routes = Array.from({length: ROUTES_COUNT}, getRandomRoute);
