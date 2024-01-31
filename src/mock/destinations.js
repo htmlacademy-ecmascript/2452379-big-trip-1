@@ -1,4 +1,4 @@
-import { generateRandomInteger, getRandomArrayElement } from '../utils/utils.js';
+import { generateRandomInteger, getRandomArrayElement } from '../utils/common.js';
 
 const lorem = 'это самый крутой рыбный текст про город название которого написано выше в этом тексте отсутсвует орфография иаая-либо нормальная пнкктуация привет меня зовут Ректанг форм дивизион я с твоим тортом вчера';
 

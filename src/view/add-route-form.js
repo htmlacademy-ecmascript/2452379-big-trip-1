@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { humanizeDate } from '../utils/views.js';
-import { wrapHandler } from '../utils/utils.js';
+import { wrapHandler } from '../utils/common.js';
 
 const createOffersList = (offers) => {
   let result = '';

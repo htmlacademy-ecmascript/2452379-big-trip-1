@@ -1,17 +1,15 @@
-import DestinationsModel from './model/destinations.js';
-import OffersModel from './model/offers.js';
-import RoutesModel from './model/routes.js';
-import RouteView from './view/route.js';
-import AddRouteFormView from './view/add-route-form.js';
-import EditRouteFormView from './view/edit-route-form.js';
-import RoutesContainerView from './view/routes-container.js';
-import FilterView from './view/filter.js';
-import FiltersFormView from './view/filters-form.js';
-import SortView from './view/sort.js';
-import SortsFormView from './view/sorts-form.js';
-import RoutesListMessageView from './view/routes-list-message.js';
-import { render, replace, RenderPosition } from './framework/render.js';
-import { onEscKeydownDo } from './utils/utils.js';
+import DestinationsModel from '../model/destinations.js';
+import OffersModel from '../model/offers.js';
+import RoutesModel from '../model/routes.js';
+import AddRouteFormView from '../view/add-route-form.js';
+import RoutesContainerView from '../view/routes-container.js';
+import FilterView from '../view/filter.js';
+import FiltersFormView from '../view/filters-form.js';
+import SortView from '../view/sort.js';
+import SortsFormView from '../view/sorts-form.js';
+import RoutesListMessageView from '../view/routes-list-message.js';
+import RoutePresenter from './route-presenter.js';
+import { render, RenderPosition } from '../framework/render.js';
 
 export default class Presenter {
   #routesModel;
@@ -70,34 +68,7 @@ export default class Presenter {
   }
 
   #renderRoute(route) {
-    const escKeydownHandler = onEscKeydownDo(() => {
-      replaceFormToRoute();
-      document.removeEventListener('keydown', escKeydownHandler);
-    });
-
-    const editRouteView = new EditRouteFormView({
-      route,
-      onSubmit: () => {
-        replaceFormToRoute();
-        document.removeEventListener('keydown', escKeydownHandler);
-      },
-      onArrowClick: () => replaceFormToRoute()
-    });
-    const routeView = new RouteView({
-      route,
-      onArrowClick: () => {
-        replaceRouteToForm();
-        document.addEventListener('keydown', escKeydownHandler);
-      }
-    });
-
-    function replaceRouteToForm() {
-      replace(editRouteView, routeView);
-    }
-    function replaceFormToRoute() {
-      replace(routeView, editRouteView);
-    }
-
-    render(routeView, this.#routesContainerView.element);
+    const routePresenter = new RoutePresenter({ routesContainer: this.#routesContainerView });
+    routePresenter.init(route);
   }
 }
