@@ -72,7 +72,11 @@ export default class Presenter {
   }
 
   #renderRoute(route) {
-    const routePresenter = new RoutePresenter({ routesContainer: this.#routesContainerView, handleDataChange: this.#handleRouteChange });
+    const routePresenter = new RoutePresenter({
+      routesContainer: this.#routesContainerView,
+      handleDataChange: this.#handleRouteChange,
+      handleEditorOpen: this.#resetRoutePresenters
+    });
     routePresenter.init(route);
     this.#routePresenters.set(route.id, routePresenter);
   }
@@ -83,7 +87,6 @@ export default class Presenter {
   };
 
   #resetRoutePresenters = () => {
-    this.#routePresenters.forEach((presenter) => {
-    });
+    this.#routePresenters.forEach((presenter) => presenter.resetView());
   };
 }

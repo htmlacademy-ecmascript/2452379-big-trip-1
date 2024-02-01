@@ -9,11 +9,15 @@ export default class RoutePresenter {
   #routeView;
   #editRouteView;
 
-  #handleDataChange;
+  #isEditOpen = false;
 
-  constructor({routesContainer, handleDataChange}) {
+  #handleDataChange;
+  #handleEditorOpen;
+
+  constructor({routesContainer, handleDataChange, handleEditorOpen}) {
     this.#routesContainer = routesContainer;
     this.#handleDataChange = handleDataChange;
+    this.#handleEditorOpen = handleEditorOpen;
   }
 
   init(route) {
@@ -42,14 +46,23 @@ export default class RoutePresenter {
     remove(prevEditRouteView);
   }
 
+  resetView() {
+    if(this.#isEditOpen) {
+      this.#replaceFormToRoute();
+    }
+  }
+
   #replaceRouteToForm() {
     replace(this.#editRouteView, this.#routeView);
     document.addEventListener('keydown', this.#escKeydownHandler);
+    this.#handleEditorOpen();
+    this.#isEditOpen = true;
   }
 
   #replaceFormToRoute() {
     replace(this.#routeView, this.#editRouteView);
     document.removeEventListener('keydown', this.#escKeydownHandler);
+    this.#isEditOpen = false;
   }
 
   #escKeydownHandler = onEscKeydownDo(() => {
