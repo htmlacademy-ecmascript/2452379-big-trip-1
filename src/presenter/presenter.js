@@ -10,6 +10,7 @@ import SortsFormView from '../view/sorts-form.js';
 import RoutesListMessageView from '../view/routes-list-message.js';
 import RoutePresenter from './route-presenter.js';
 import { render, RenderPosition } from '../framework/render.js';
+import { updateItem } from '../utils/common.js';
 
 export default class Presenter {
   #routesModel;
@@ -17,6 +18,7 @@ export default class Presenter {
   #destinationsModel;
 
   #routes;
+  #routePresenters;
   #routesContainerView;
   #addRouteFormView;
   #routesListMessageView;
@@ -33,6 +35,8 @@ export default class Presenter {
     this.#destinationsModel = new DestinationsModel();
 
     this.#routes = [...this.#routesModel.getRoutes()];
+
+    this.#routePresenters = new Map();
 
     this.#filtersFormView = new FiltersFormView();
     this.#sortsFormView = new SortsFormView();
@@ -68,7 +72,18 @@ export default class Presenter {
   }
 
   #renderRoute(route) {
-    const routePresenter = new RoutePresenter({ routesContainer: this.#routesContainerView });
+    const routePresenter = new RoutePresenter({ routesContainer: this.#routesContainerView, handleDataChange: this.#handleRouteChange });
     routePresenter.init(route);
+    this.#routePresenters.set(route.id, routePresenter);
   }
+
+  #handleRouteChange = (updatedRoute) => {
+    this.#routes = updateItem(this.#routes, updatedRoute);
+    this.#routePresenters.get(updatedRoute.id).init(updatedRoute);
+  };
+
+  #resetRoutePresenters = () => {
+    this.#routePresenters.forEach((presenter) => {
+    });
+  };
 }

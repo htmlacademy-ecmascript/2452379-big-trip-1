@@ -14,7 +14,7 @@ const createOffersList = (offers) => {
   return result;
 };
 
-const createTemplate = ({type, destination, dateFrom, dateTo, offers, price}) => `
+const createTemplate = ({type, destination, dateFrom, dateTo, offers, price, isFavorite}) => `
 <li class="trip-events__item"><div class="event">
 <time class="event__date" datetime="${dateFrom}">${humanizeDate(dateFrom, 'eventDate')}</time>
 <div class="event__type">
@@ -36,7 +36,7 @@ const createTemplate = ({type, destination, dateFrom, dateTo, offers, price}) =>
 <ul class="event__selected-offers">
   ${createOffersList(offers)}
 </ul>
-<button class="event__favorite-btn event__favorite-btn--active" type="button">
+<button class="event__favorite-btn ${isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
   <span class="visually-hidden">Add to favorite</span>
   <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
     <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
@@ -51,10 +51,11 @@ const createTemplate = ({type, destination, dateFrom, dateTo, offers, price}) =>
 export default class RouteView extends AbstractView {
   #route;
 
-  constructor({route, onArrowClick}) {
+  constructor({ route, onArrowClick, onFavoriteClick }) {
     super();
     this.#route = route;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', wrapHandler(onArrowClick));
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', wrapHandler(onFavoriteClick));
   }
 
   get template() {
