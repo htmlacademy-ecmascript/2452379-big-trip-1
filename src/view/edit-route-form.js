@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { humanizeDate } from '../utils/views.js';
-import { wrapHandler } from '../utils/utils.js';
+import { wrapHandler } from '../utils/common.js';
 
 const createOffersList = (offers) => {
   let result = '';
@@ -135,11 +135,11 @@ const createTemplate = ({type, destination, dateFrom, dateTo, offers, price}) =>
 export default class EditRouteFormView extends AbstractView {
   #route;
 
-  constructor({route, onSubmit, onArrowClick}) {
+  constructor({route, onSubmitClick, onArrowClick}) {
     super();
     this.#route = route;
 
-    this.element.querySelector('form').addEventListener('submit', wrapHandler(onSubmit));
+    this.element.querySelector('form').addEventListener('submit', wrapHandler(onSubmitClick));
     this.element.querySelector('.event__rollup-btn').addEventListener('click', wrapHandler(onArrowClick));
   }
 

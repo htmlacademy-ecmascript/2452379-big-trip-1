@@ -1,4 +1,4 @@
-import { getRandomArraySlice } from '../utils/utils.js';
+import { getRandomArraySlice } from '../utils/common.js';
 
 const offers = [
   {

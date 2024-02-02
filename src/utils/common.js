@@ -6,13 +6,13 @@ const generateRandomInteger = (min, max) => {
 
 const getRandomArrayElement = (arr, min = 0, max = arr.length - 1) => arr[generateRandomInteger(min, max)];
 
-const getRandomArraySlice = (arr) => {
+const getRandomArraySlice = (arr, length = -1) => {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 
-  return arr.slice(0, generateRandomInteger(0, arr.length - 1));
+  return arr.slice(0, length === -1 ? generateRandomInteger(0, arr.length - 1) : length);
 };
 
 const onEscKeydownDo = (cb, exp = null) => ((evt) => {
@@ -27,5 +27,7 @@ const wrapHandler = (cb) => ((evt) => {
   cb();
 });
 
+const updateItem = (items, updatedItem) => items.map((item) => item.id === updateItem.id ? updatedItem : item);
 
-export { generateRandomInteger, getRandomArrayElement, getRandomArraySlice, onEscKeydownDo, wrapHandler };
+
+export { generateRandomInteger, getRandomArrayElement, getRandomArraySlice, onEscKeydownDo, wrapHandler, updateItem };

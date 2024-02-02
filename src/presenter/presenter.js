@@ -1,17 +1,16 @@
-import DestinationsModel from './model/destinations.js';
-import OffersModel from './model/offers.js';
-import RoutesModel from './model/routes.js';
-import RouteView from './view/route.js';
-import AddRouteFormView from './view/add-route-form.js';
-import EditRouteFormView from './view/edit-route-form.js';
-import RoutesContainerView from './view/routes-container.js';
-import FilterView from './view/filter.js';
-import FiltersFormView from './view/filters-form.js';
-import SortView from './view/sort.js';
-import SortsFormView from './view/sorts-form.js';
-import RoutesListMessageView from './view/routes-list-message.js';
-import { render, replace, RenderPosition } from './framework/render.js';
-import { onEscKeydownDo } from './utils/utils.js';
+import DestinationsModel from '../model/destinations.js';
+import OffersModel from '../model/offers.js';
+import RoutesModel from '../model/routes.js';
+import AddRouteFormView from '../view/add-route-form.js';
+import RoutesContainerView from '../view/routes-container.js';
+import FilterView from '../view/filter.js';
+import FiltersFormView from '../view/filters-form.js';
+import SortView from '../view/sort.js';
+import SortsFormView from '../view/sorts-form.js';
+import RoutesListMessageView from '../view/routes-list-message.js';
+import RoutePresenter from './route-presenter.js';
+import { render, RenderPosition } from '../framework/render.js';
+import { updateItem } from '../utils/common.js';
 
 export default class Presenter {
   #routesModel;
@@ -19,6 +18,7 @@ export default class Presenter {
   #destinationsModel;
 
   #routes;
+  #routePresenters;
   #routesContainerView;
   #addRouteFormView;
   #routesListMessageView;
@@ -35,6 +35,8 @@ export default class Presenter {
     this.#destinationsModel = new DestinationsModel();
 
     this.#routes = [...this.#routesModel.getRoutes()];
+
+    this.#routePresenters = new Map();
 
     this.#filtersFormView = new FiltersFormView();
     this.#sortsFormView = new SortsFormView();
@@ -70,34 +72,21 @@ export default class Presenter {
   }
 
   #renderRoute(route) {
-    const escKeydownHandler = onEscKeydownDo(() => {
-      replaceFormToRoute();
-      document.removeEventListener('keydown', escKeydownHandler);
+    const routePresenter = new RoutePresenter({
+      routesContainer: this.#routesContainerView,
+      handleDataChange: this.#handleRouteChange,
+      handleEditorOpen: this.#resetRoutePresenters
     });
-
-    const editRouteView = new EditRouteFormView({
-      route,
-      onSubmit: () => {
-        replaceFormToRoute();
-        document.removeEventListener('keydown', escKeydownHandler);
-      },
-      onArrowClick: () => replaceFormToRoute()
-    });
-    const routeView = new RouteView({
-      route,
-      onArrowClick: () => {
-        replaceRouteToForm();
-        document.addEventListener('keydown', escKeydownHandler);
-      }
-    });
-
-    function replaceRouteToForm() {
-      replace(editRouteView, routeView);
-    }
-    function replaceFormToRoute() {
-      replace(routeView, editRouteView);
-    }
-
-    render(routeView, this.#routesContainerView.element);
+    routePresenter.init(route);
+    this.#routePresenters.set(route.id, routePresenter);
   }
+
+  #handleRouteChange = (updatedRoute) => {
+    this.#routes = updateItem(this.#routes, updatedRoute);
+    this.#routePresenters.get(updatedRoute.id).init(updatedRoute);
+  };
+
+  #resetRoutePresenters = () => {
+    this.#routePresenters.forEach((presenter) => presenter.resetView());
+  };
 }
