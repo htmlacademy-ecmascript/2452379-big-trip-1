@@ -24,10 +24,10 @@ const onEscKeydownDo = (cb, exp = null) => ((evt) => {
 
 const wrapHandler = (cb) => ((evt) => {
   evt.preventDefault();
-  cb();
+  cb(evt);
 });
 
-const updateItem = (items, updatedItem) => items.map((item) => item.id === updateItem.id ? updatedItem : item);
+const updateItem = (items, updatedItem) => items.map((item) => item.id === updatedItem.id ? updatedItem : item);
 
 
 export { generateRandomInteger, getRandomArrayElement, getRandomArraySlice, onEscKeydownDo, wrapHandler, updateItem };

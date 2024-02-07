@@ -52,6 +52,11 @@ export default class RoutePresenter {
     }
   }
 
+  destroy() {
+    remove(this.#routeView);
+    remove(this.#editRouteView);
+  }
+
   #replaceRouteToForm() {
     replace(this.#editRouteView, this.#routeView);
     document.addEventListener('keydown', this.#escKeydownHandler);
