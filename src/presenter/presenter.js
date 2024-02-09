@@ -11,6 +11,8 @@ import RoutesListMessageView from '../view/routes-list-message.js';
 import RoutePresenter from './route-presenter.js';
 import { render, RenderPosition } from '../framework/render.js';
 import { updateItem } from '../utils/common.js';
+import { SortTypes } from '../const.js';
+import { SortMethods } from '../utils/sorts.js';
 
 export default class Presenter {
   #routesModel;
@@ -30,25 +32,31 @@ export default class Presenter {
   #destinations;
 
   constructor() {
+    this.#initModels();
+    this.#initViews();
+
+    this.#routePresenters = new Map();
+  }
+
+  #initModels() {
     this.#routesModel = new RoutesModel();
     this.#offersModel = new OffersModel();
     this.#destinationsModel = new DestinationsModel();
 
     this.#routes = [...this.#routesModel.getRoutes()];
+  }
 
-    this.#routePresenters = new Map();
-
+  #initViews() {
     this.#filtersFormView = new FiltersFormView();
-    this.#sortsFormView = new SortsFormView();
-    this.#routesContainerView = new RoutesContainerView();
     this.#filters = [
       new FilterView({ label: 'Everything', type: 'everything' }), new FilterView({ label: 'Future', type: 'future' }),
       new FilterView({ label: 'Present', type: 'present' }), new FilterView({ label: 'Past', type: 'past' })
     ];
-    this.#sortViews = [
-      new SortView({ label: 'Day', type: 'day' }), new SortView({ label: 'Route', type: 'event' }), new SortView({ label: 'Time', type: 'time' }),
-      new SortView({ label: 'Price', type: 'price' }), new SortView({ label: 'Offers', type: 'offers' })
-    ];
+
+    this.#sortsFormView = new SortsFormView({ onSortChange: this.#handleSortChange });
+    this.#sortViews = SortTypes.map((sort) => new SortView({sort}));
+
+    this.#routesContainerView = new RoutesContainerView();
     this.#addRouteFormView = new AddRouteFormView();
     this.#routesListMessageView = new RoutesListMessageView();
   }
@@ -66,9 +74,7 @@ export default class Presenter {
     }
 
     this.#sortViews.forEach((sort) => render(sort, this.#sortsFormView.element));
-    for (let i = 0; i < this.#routes.length; i++) {
-      this.#renderRoute(this.#routes[i]);
-    }
+    this.#sortsFormView.sortByDefault();
   }
 
   #renderRoute(route) {
@@ -88,5 +94,18 @@ export default class Presenter {
 
   #resetRoutePresenters = () => {
     this.#routePresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #clearRoutesList() {
+    this.#routePresenters.forEach((item) => item.destroy());
+    this.#routePresenters.clear();
+  }
+
+  #handleSortChange = (type) => {
+    this.#clearRoutesList();
+    const sortedRoutes = this.#routes.sort(SortMethods[type]);
+    for (let i = 0; i < sortedRoutes.length; i++) {
+      this.#renderRoute(sortedRoutes[i]);
+    }
   };
 }
