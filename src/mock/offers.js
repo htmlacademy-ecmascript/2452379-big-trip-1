@@ -1,21 +1,22 @@
 import { getRandomArraySlice } from '../utils/common.js';
+import { nanoid } from 'nanoid';
 
 const offers = [
   {
     type: 'Taxi',
     offers: [
       {
-        id: crypto.randomUUID,
+        id: nanoid(),
         title: 'Огромное сиденье',
         price: 20
       },
       {
-        id: crypto.randomUUID,
+        id: nanoid(),
         title: 'Маленькое сиденье',
         price: 12
       },
       {
-        id: crypto.randomUUID,
+        id: nanoid(),
         title: 'Широкий водитель',
         price: 0
       },
@@ -25,17 +26,17 @@ const offers = [
     type: 'Flight',
     offers: [
       {
-        id: crypto.randomUUID,
+        id: nanoid(),
         title: 'Огромный SSL',
         price: 20200
       },
       {
-        id: crypto.randomUUID,
+        id: nanoid(),
         title: 'Мисс Кардашьян',
         price: 12
       },
       {
-        id: crypto.randomUUID,
+        id: nanoid(),
         title: 'твердое',
         price: 1
       },
@@ -45,12 +46,12 @@ const offers = [
     type: 'Train',
     offers: [
       {
-        id: crypto.randomUUID,
+        id: nanoid(),
         title: 'Гоблин-гном',
         price: 243
       },
       {
-        id: crypto.randomUUID,
+        id: nanoid(),
         title: 'мммммммм МММ',
         price: 3
       },
@@ -58,12 +59,15 @@ const offers = [
   },
 ];
 
+
 const getRandomOffers = (type) => {
-  const offerByType = offers.find((offer) => offer.type === type);
-  if (offerByType) {
-    return getRandomArraySlice(offerByType.offers);
+  const offersByType = offers.find((offer) => offer.type === type);
+  if (offersByType) {
+    return getRandomArraySlice([...(offersByType.offers)]).map((offer) => offer.id);
   }
   return [];
 };
 
-export { getRandomOffers };
+const getAllOffers = () => [...offers];
+
+export { getRandomOffers, getAllOffers };

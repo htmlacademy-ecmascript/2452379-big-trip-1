@@ -80,6 +80,8 @@ export default class Presenter {
   #renderRoute(route) {
     const routePresenter = new RoutePresenter({
       routesContainer: this.#routesContainerView,
+      offers: this.#offersModel.getOffers(),
+      destinations: this.#destinationsModel.getDestinations(),
       handleDataChange: this.#handleRouteChange,
       handleEditorOpen: this.#resetRoutePresenters
     });
