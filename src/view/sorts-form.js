@@ -9,6 +9,7 @@ export default class SortsFormView extends AbstractView {
 
   constructor({ onSortChange }) {
     super();
+    this.#prevSort = this.#defaultSort;
     this.#handleSortChange = onSortChange;
     this.element.addEventListener('click', wrapHandler(this.#sortChangeHandler));
   }
@@ -41,9 +42,8 @@ export default class SortsFormView extends AbstractView {
       return;
     }
 
-    if (this.#prevSort) {
-      this.#prevSort.querySelector('input').checked = false;
-    }
+    this.#prevSort.querySelector('input').checked = !this.#prevSort;
+
     sortElement.querySelector('input').checked = true;
     this.#prevSort = sortElement;
 
