@@ -28,4 +28,9 @@ const calcEventDuration = (dt1, dt2) => {
   }
 };
 
-export { humanizeDate, calcEventDuration };
+const getOffersByType = (offers, type) => {
+  const offersByType = offers.find((offer) => offer.type === type);
+  return offersByType === undefined ? [] : offersByType.offers;
+};
+
+export { humanizeDate, getOffersByType, calcEventDuration };

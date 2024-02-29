@@ -14,7 +14,17 @@ export default class RoutePresenter {
   #handleDataChange;
   #handleEditorOpen;
 
-  constructor({routesContainer, handleDataChange, handleEditorOpen}) {
+  static #offers = null;
+  static #destinations = null;
+
+  constructor({routesContainer, offers, destinations, handleDataChange, handleEditorOpen}) {
+    if (!RoutePresenter.#offers) {
+      RoutePresenter.#offers = offers;
+    }
+    if (!RoutePresenter.#destinations) {
+      RoutePresenter.#destinations = destinations;
+    }
+
     this.#routesContainer = routesContainer;
     this.#handleDataChange = handleDataChange;
     this.#handleEditorOpen = handleEditorOpen;
@@ -26,8 +36,8 @@ export default class RoutePresenter {
     const prevRouteView = this.#routeView;
     const prevEditRouteView = this.#editRouteView;
 
-    this.#routeView = new RouteView({ route: this.#route, onArrowClick: this.#handleOpenEditClick, onFavoriteClick: this.#handleFavoriteClick });
-    this.#editRouteView = new EditRouteFormView({ route: this.#route, onArrowClick: this.#handleCloseEditClick });
+    this.#routeView = new RouteView({ route: this.#route, offers: RoutePresenter.#offers, onArrowClick: this.#handleOpenEditClick, onFavoriteClick: this.#handleFavoriteClick });
+    this.#editRouteView = new EditRouteFormView({ route: this.#route, offers: RoutePresenter.#offers, destinations: RoutePresenter.#destinations, onArrowClick: this.#handleCloseEditClick });
 
     if (!prevRouteView || !prevEditRouteView) {
       render(this.#routeView, this.#routesContainer.element);
