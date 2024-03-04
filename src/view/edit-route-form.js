@@ -1,6 +1,9 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { humanizeDate, getOffersByType } from '../utils/views.js';
 import { wrapHandler } from '../utils/common.js';
+import flatpickr from 'flatpickr';
+
+import 'flatpickr/dist/flatpickr.min.css';
 
 
 const getRouteImageName = (type) => type.toLowerCase().concat('.png');
@@ -38,12 +41,12 @@ const createPicturesList = (pics) => {
 const createDestinationList = (destinations) => {
   let result = '';
 
-  destinations.forEach((destination) => (result += `<option value="${ destination.name }"></option>`));
+  destinations.forEach((destination) => (result += `<option value="${destination.name}"></option>`));
 
   return result;
 };
 
-const createTemplate = ({type, destination, dateFrom, dateTo, offers, price, offersAll, destinationsAll}) => `
+const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, offersAll, destinationsAll }) => `
 <li class="trip-events__item">
           <form class="event event--edit" action="#" method="post">
             <header class="event__header">
@@ -163,7 +166,9 @@ export default class EditRouteFormView extends AbstractStatefulView {
   #submitClickHandler;
   #arrowClickHandler;
 
-  constructor({route, offers, destinations, onSubmitClick, onArrowClick}) {
+  #datepickers;
+
+  constructor({ route, offers, destinations, onSubmitClick, onArrowClick }) {
     super();
     this._setState(route);
     this.#offersAll = offers;
@@ -172,21 +177,27 @@ export default class EditRouteFormView extends AbstractStatefulView {
     this.#submitClickHandler = wrapHandler(onSubmitClick);
     this.#arrowClickHandler = wrapHandler(onArrowClick);
 
+    this.#setDatePickers();
+
     this._restoreHandlers();
   }
 
   get template() {
-    return createTemplate({ ...this._state, offersAll: this.#offersAll, destinationsAll: this.#destinationsAll});
+    return createTemplate({ ...this._state, offersAll: this.#offersAll, destinationsAll: this.#destinationsAll });
+  }
+
+  #setDatePickers() {
+    this.#datepickers = flatpickr(this.element.querySelectorAll('.event__input--time'), { enableTime: true, 'time_24hr': true, dateFormat:'d/m/y H:i' });
   }
 
   _restoreHandlers() {
     this.element.querySelector('form').addEventListener('submit', this.#submitClickHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
-    this.element.querySelector('.event__type-group').addEventListener('click', this.eventTypeChangeHandler);
-    this.element.querySelector('.event__input--destination').addEventListener('input', this.destinationChangeHandler);
+    this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeChangeHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationChangeHandler);
   }
 
-  eventTypeChangeHandler = (evt) => {
+  #eventTypeChangeHandler = (evt) => {
     evt.preventDefault();
     if (evt.target.tagName === 'LABEL') {
       this._state.type = evt.target.dataset.eventType;
@@ -194,7 +205,7 @@ export default class EditRouteFormView extends AbstractStatefulView {
     }
   };
 
-  destinationChangeHandler = (evt) => {
+  #destinationChangeHandler = (evt) => {
     evt.preventDefault();
     const result = this.#destinationsAll.find((destination) => destination.name === evt.target.value);
 
