@@ -17,7 +17,6 @@ const humanizeDate = (date, format) => date ? dayjs(date).format(DATE_FORMAT[for
 
 const calcEventDuration = (dt1, dt2) => {
   const diff = dayjs(dt2).diff(dayjs(dt1));
-
   switch (true) {
     case diff >= MSEC_IN_DAY:
       return dayjs.duration(diff).format('DD[D] HH[H] mm[M]');
@@ -28,9 +27,24 @@ const calcEventDuration = (dt1, dt2) => {
   }
 };
 
+const getRouteTimeframe = (route) => {
+  const diffFromNowToDateFrom = dayjs().diff(route.dateFrom);
+  const diffFromNowToDateTo = dayjs().diff(route.dateTo);
+
+  if (diffFromNowToDateFrom < 0) {
+    return 1;
+  }
+  if (diffFromNowToDateTo > 0) {
+    return -1;
+  }
+  return 0;
+};
+
 const getOffersByType = (offers, type) => {
   const offersByType = offers.find((offer) => offer.type === type);
   return offersByType === undefined ? [] : offersByType.offers;
 };
 
-export { humanizeDate, getOffersByType, calcEventDuration };
+const areDatesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB, 'D');
+
+export { humanizeDate, getOffersByType, calcEventDuration, areDatesEqual, getRouteTimeframe };

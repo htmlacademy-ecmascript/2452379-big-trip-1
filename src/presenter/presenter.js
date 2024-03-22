@@ -1,41 +1,52 @@
 import DestinationsModel from '../model/destinations.js';
 import OffersModel from '../model/offers.js';
 import RoutesModel from '../model/routes.js';
-import AddRouteFormView from '../view/add-route-form.js';
+import AddRoutePresenter from './add-route-presenter.js';
 import RoutesContainerView from '../view/routes-container.js';
-import FilterView from '../view/filter.js';
 import FiltersFormView from '../view/filters-form.js';
-import SortView from '../view/sort.js';
 import SortsFormView from '../view/sorts-form.js';
 import RoutesListMessageView from '../view/routes-list-message.js';
 import RoutePresenter from './route-presenter.js';
 import { render, RenderPosition } from '../framework/render.js';
-import { updateItem } from '../utils/common.js';
-import { SortTypes } from '../const.js';
 import { SortMethods } from '../utils/sorts.js';
+import { FilterMethods } from '../utils/filters.js';
+import { UpdateType, UserAction } from '../const.js';
 
 export default class Presenter {
   #routesModel;
   #offersModel;
   #destinationsModel;
 
-  #routes;
   #routePresenters;
+  #addRoutePresenter;
   #routesContainerView;
-  #addRouteFormView;
   #routesListMessageView;
 
-  #filters;
   #filtersFormView;
-  #sortViews;
   #sortsFormView;
-  #destinations;
+
+  #addRouteBtn;
+
+  #currentSort;
+  #currentFilter;
 
   constructor() {
     this.#initModels();
     this.#initViews();
 
     this.#routePresenters = new Map();
+    this.#addRoutePresenter = new AddRoutePresenter({ container: this.#routesContainerView, offersModel: this.#offersModel, destinationsModel: this.#destinationsModel, handleDataChange: this.#handleViewAction, handleEditorOpen: this.#resetRoutePresenters, handleDestroy: this.#handleDestroy });
+
+    this.#currentSort = SortMethods.day;
+    this.#currentFilter = FilterMethods.everything;
+
+    this.#addRouteBtn = document.querySelector('.trip-main__event-add-btn');
+
+    this.#addRouteBtn.addEventListener('click', this.#handleAddFormClick);
+  }
+
+  get routes() {
+    return this.#routesModel.routes;
   }
 
   #initModels() {
@@ -43,21 +54,14 @@ export default class Presenter {
     this.#offersModel = new OffersModel();
     this.#destinationsModel = new DestinationsModel();
 
-    this.#routes = [...this.#routesModel.getRoutes()];
+    this.#routesModel.addObserver(this.#handleModelEvent);
   }
 
   #initViews() {
-    this.#filtersFormView = new FiltersFormView();
-    this.#filters = [
-      new FilterView({ label: 'Everything', type: 'everything' }), new FilterView({ label: 'Future', type: 'future' }),
-      new FilterView({ label: 'Present', type: 'present' }), new FilterView({ label: 'Past', type: 'past' })
-    ];
-
+    this.#filtersFormView = new FiltersFormView({ onFilterChange: this.#handleFilterChange });
     this.#sortsFormView = new SortsFormView({ onSortChange: this.#handleSortChange });
-    this.#sortViews = SortTypes.map((sort) => new SortView({sort}));
 
     this.#routesContainerView = new RoutesContainerView();
-    this.#addRouteFormView = new AddRouteFormView();
     this.#routesListMessageView = new RoutesListMessageView();
   }
 
@@ -66,35 +70,60 @@ export default class Presenter {
     render(this.#sortsFormView, document.querySelector('.trip-events'));
     render(this.#routesContainerView, this.#sortsFormView.element, RenderPosition.AFTEREND);
 
-    this.#filters.forEach((filter) => render(filter, this.#filtersFormView.element));
-
-    if (!this.#routes.length) {
+    if (!this.routes.size) {
       render(this.#routesListMessageView, this.#routesContainerView.element);
       return;
     }
 
-    this.#sortViews.forEach((sort) => render(sort, this.#sortsFormView.element));
-    this.#sortsFormView.sortByDefault();
+    this.#renderRoutes();
+  }
+
+  #renderRoutes() {
+    [...this.routes].map(([_, route]) => route).filter(this.#currentFilter).sort(this.#currentSort).forEach((route) => this.#renderRoute(route));
   }
 
   #renderRoute(route) {
     const routePresenter = new RoutePresenter({
       routesContainer: this.#routesContainerView,
-      offers: this.#offersModel.getOffers(),
-      destinations: this.#destinationsModel.getDestinations(),
-      handleDataChange: this.#handleRouteChange,
+      offers: this.#offersModel.offers,
+      destinations: this.#destinationsModel.destinations,
+      handleDataChange: this.#handleViewAction,
       handleEditorOpen: this.#resetRoutePresenters
     });
     routePresenter.init(route);
     this.#routePresenters.set(route.id, routePresenter);
   }
 
-  #handleRouteChange = (updatedRoute) => {
-    this.#routes = updateItem(this.#routes, updatedRoute);
-    this.#routePresenters.get(updatedRoute.id).init(updatedRoute);
+  #handleViewAction = (userAction, updateType, update) => {
+    switch (userAction) {
+      case UserAction.ADD_TASK:
+        this.#routesModel.addRoute(updateType, update);
+        break;
+      case UserAction.UPDATE_TASK:
+        this.#routesModel.updateRoute(updateType, update);
+        break;
+      case UserAction.DELETE_TASK:
+        this.#routesModel.deleteRoute(updateType, update);
+        break;
+    }
+  };
+
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#routePresenters.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        this.#clearRoutesList();
+        this.#renderRoutes();
+        break;
+      case UpdateType.MAJOR:
+        break;
+    }
   };
 
   #resetRoutePresenters = () => {
+    this.#closeAddRouteForm();
     this.#routePresenters.forEach((presenter) => presenter.resetView());
   };
 
@@ -104,10 +133,46 @@ export default class Presenter {
   }
 
   #handleSortChange = (type) => {
-    this.#clearRoutesList();
-    const sortedRoutes = this.#routes.sort(SortMethods[type]);
-    for (let i = 0; i < sortedRoutes.length; i++) {
-      this.#renderRoute(sortedRoutes[i]);
+    if (this.#currentSort === SortMethods[type]) {
+      return;
     }
+    this.#currentSort = SortMethods[type];
+    this.#clearRoutesList();
+    this.#renderRoutes();
+  };
+
+  #handleFilterChange = (type) => {
+    if (this.#currentFilter === FilterMethods[type]) {
+      return;
+    }
+    this.#currentFilter = FilterMethods[type];
+    this.#sortsFormView.init();
+    this.#clearRoutesList();
+    this.#renderRoutes();
+  };
+
+  #openAddRouteForm = () => {
+    this.#addRoutePresenter.init();
+    this.#addRouteBtn.disabled = true;
+  };
+
+  #closeAddRouteForm = () => {
+    if (!this.#addRoutePresenter.isOpened) {
+      return;
+    }
+
+    this.#addRoutePresenter.destroy();
+  };
+
+  #handleAddFormClick = (evt) => {
+    evt.preventDefault();
+    this.#resetRoutePresenters();
+    this.#sortsFormView.init();
+    this.#filtersFormView.init();
+    this.#openAddRouteForm();
+  };
+
+  #handleDestroy = () => {
+    this.#addRouteBtn.disabled = false;
   };
 }

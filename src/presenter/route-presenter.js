@@ -1,7 +1,9 @@
 import EditRouteFormView from '../view/edit-route-form';
 import RouteView from '../view/route.js';
 import { render, replace, remove } from '../framework/render.js';
+import { areDatesEqual } from '../utils/routes.js';
 import { onEscKeydownDo } from '../utils/common.js';
+import { UserAction, UpdateType } from '../const.js';
 
 export default class RoutePresenter {
   #routesContainer;
@@ -11,7 +13,7 @@ export default class RoutePresenter {
 
   #isEditOpen = false;
 
-  #handleDataChange;
+  #dataChangeHandler;
   #handleEditorOpen;
 
   static #offers = null;
@@ -26,18 +28,17 @@ export default class RoutePresenter {
     }
 
     this.#routesContainer = routesContainer;
-    this.#handleDataChange = handleDataChange;
+    this.#dataChangeHandler = handleDataChange;
     this.#handleEditorOpen = handleEditorOpen;
   }
 
   init(route) {
     this.#route = route;
-
     const prevRouteView = this.#routeView;
     const prevEditRouteView = this.#editRouteView;
 
     this.#routeView = new RouteView({ route: this.#route, offers: RoutePresenter.#offers, onArrowClick: this.#handleOpenEditClick, onFavoriteClick: this.#handleFavoriteClick });
-    this.#editRouteView = new EditRouteFormView({ route: this.#route, offers: RoutePresenter.#offers, destinations: RoutePresenter.#destinations, onArrowClick: this.#handleCloseEditClick });
+    this.#editRouteView = new EditRouteFormView({ route: this.#route, offers: RoutePresenter.#offers, destinations: RoutePresenter.#destinations, onReset: this.#handleDeleteClick, onSubmit: this.#handleSubmit, onArrowClick: this.#handleCloseEditClick });
 
     if (!prevRouteView || !prevEditRouteView) {
       render(this.#routeView, this.#routesContainer.element);
@@ -94,6 +95,18 @@ export default class RoutePresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({ ...this.#route, isFavorite: !this.#route.isFavorite});
+    this.#dataChangeHandler(UserAction.UPDATE_TASK, UpdateType.PATCH, { ...this.#route, isFavorite: !this.#route.isFavorite});
+  };
+
+  #handleDeleteClick = () => {
+    this.#dataChangeHandler(UserAction.DELETE_TASK, UpdateType.MINOR, this.#route);
+  };
+
+  #handleSubmit = (update) => {
+    const updateType = areDatesEqual(this.#route.dateFrom, update.dateFrom) ? UpdateType.PATCH : UpdateType.MINOR;
+
+    this.#dataChangeHandler(UserAction.UPDATE_TASK, updateType, { ...this.#route, ...update });
+    this.#handleEditorOpen();
+    this.#isEditOpen = false;
   };
 }

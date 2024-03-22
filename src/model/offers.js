@@ -2,7 +2,7 @@ import { getAllOffers } from '../mock/offers.js';
 
 
 export default class OffersModel {
-  getOffers() {
+  get offers() {
     return getAllOffers();
   }
 }
