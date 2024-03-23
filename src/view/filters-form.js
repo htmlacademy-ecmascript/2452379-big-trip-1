@@ -23,7 +23,7 @@ export default class FiltersFormView extends AbstractView {
 
     this.#currentFilter = this.element.querySelector(`.trip-filters__filter--${FilterTypes[0].type}`);
     this.#currentFilter.querySelector('input').checked = true;
-    
+
     this.#handleFilterChange = onFilterChange;
     this.element.addEventListener('click', wrapHandler(this.#filterChangeHandler));
   }

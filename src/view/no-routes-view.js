@@ -8,7 +8,6 @@ export default class NoRoutesView extends AbstractView {
 
   constructor(filterType) {
     super();
-    console.log(filterType);
     this.#message = MessageTypes[filterType];
   }
 

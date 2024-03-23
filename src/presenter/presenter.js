@@ -73,7 +73,7 @@ export default class Presenter {
   }
 
   #renderRoutes() {
-    const filteredRoutes = [...this.routes].map(([_, route]) => route).filter(this.#currentFilter);
+    const filteredRoutes = [...this.routes].map(([ , route]) => route).filter(this.#currentFilter);
 
     if (this.#noRoutesView?.element) {
       remove(this.#noRoutesView);
