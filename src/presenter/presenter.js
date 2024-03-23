@@ -5,9 +5,9 @@ import AddRoutePresenter from './add-route-presenter.js';
 import RoutesContainerView from '../view/routes-container.js';
 import FiltersFormView from '../view/filters-form.js';
 import SortsFormView from '../view/sorts-form.js';
-import RoutesListMessageView from '../view/routes-list-message.js';
+import NoRoutesView from '../view/no-routes-view.js';
 import RoutePresenter from './route-presenter.js';
-import { render, RenderPosition } from '../framework/render.js';
+import { remove, render, RenderPosition } from '../framework/render.js';
 import { SortMethods } from '../utils/sorts.js';
 import { FilterMethods } from '../utils/filters.js';
 import { UpdateType, UserAction } from '../const.js';
@@ -20,7 +20,7 @@ export default class Presenter {
   #routePresenters;
   #addRoutePresenter;
   #routesContainerView;
-  #routesListMessageView;
+  #noRoutesView;
 
   #filtersFormView;
   #sortsFormView;
@@ -62,7 +62,6 @@ export default class Presenter {
     this.#sortsFormView = new SortsFormView({ onSortChange: this.#handleSortChange });
 
     this.#routesContainerView = new RoutesContainerView();
-    this.#routesListMessageView = new RoutesListMessageView();
   }
 
   present() {
@@ -70,16 +69,24 @@ export default class Presenter {
     render(this.#sortsFormView, document.querySelector('.trip-events'));
     render(this.#routesContainerView, this.#sortsFormView.element, RenderPosition.AFTEREND);
 
-    if (!this.routes.size) {
-      render(this.#routesListMessageView, this.#routesContainerView.element);
-      return;
-    }
-
     this.#renderRoutes();
   }
 
   #renderRoutes() {
-    [...this.routes].map(([_, route]) => route).filter(this.#currentFilter).sort(this.#currentSort).forEach((route) => this.#renderRoute(route));
+    const filteredRoutes = [...this.routes].map(([_, route]) => route).filter(this.#currentFilter);
+
+    if (this.#noRoutesView?.element) {
+      remove(this.#noRoutesView);
+    }
+
+    if (!filteredRoutes.length) {
+      this.#noRoutesView = new NoRoutesView(this.#currentFilter.name);
+      render(this.#noRoutesView, this.#routesContainerView.element);
+      return;
+    }
+
+
+    filteredRoutes.sort(this.#currentSort).forEach((route) => this.#renderRoute(route));
   }
 
   #renderRoute(route) {

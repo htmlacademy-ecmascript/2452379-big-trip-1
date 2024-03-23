@@ -1,11 +1,3 @@
-const SortTypes = [
-  { label: 'Day', type: 'day' },
-  { label: 'Route', type: 'event', isDisabled: true },
-  { label: 'Time', type: 'time' },
-  { label: 'Price', type: 'price' },
-  { label: 'Offers', type: 'offers', isDisabled: true }
-];
-
 const UserAction = {
   UPDATE_TASK: 'UPDATE_TASK',
   ADD_TASK: 'ADD_TASK',
@@ -18,6 +10,14 @@ const UpdateType = {
   MAJOR: 'MAJOR',
 };
 
+const SortTypes = [
+  { label: 'Day', type: 'day' },
+  { label: 'Route', type: 'event', isDisabled: true },
+  { label: 'Time', type: 'time' },
+  { label: 'Price', type: 'price' },
+  { label: 'Offers', type: 'offers', isDisabled: true }
+];
+
 const FilterTypes = [
   { name: 'Everything', type: 'everything' },
   { name: 'Present', type: 'present' },
@@ -25,4 +25,11 @@ const FilterTypes = [
   { name: 'Past', type: 'past' },
 ];
 
-export { SortTypes, UserAction, UpdateType, FilterTypes };
+const MessageTypes = {
+  'everything': 'Click New Event to create your first point',
+  'present': 'There are no present events now',
+  'future': 'There are no future events now',
+  'past': 'There are no past events now',
+};
+
+export { SortTypes, UserAction, UpdateType, FilterTypes, MessageTypes };
