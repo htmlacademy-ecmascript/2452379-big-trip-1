@@ -1,15 +1,30 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { humanizeDate, getOffersByType } from '../utils/views.js';
+import { humanizeDate, getOffersByType, getRouteTimeframe } from '../utils/routes.js';
 import { wrapHandler } from '../utils/common.js';
 import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
+const BLANK_ROUTE = {
+  price: 0,
+  dateFrom: '',
+  dateTo: '',
+  destination: null,
+  isFavorite: false,
+  type: 'Flight',
+  offers: []
+};
 
 const getRouteImageName = (type) => type.toLowerCase().concat('.png');
 
-const createOffersList = (offersAll, routeOffers, type) => {
-  let result = '';
+const createOffersSection = (offersAll, routeOffers, type) => {
+  const offersByType = getOffersByType(offersAll, type);
+
+  if (!offersByType.length) {
+    return '';
+  }
+
+  let result = '<section class="event__section  event__section--offers"><h3 class="event__section-title  event__section-title--offers">Offers</h3><div class="event__available-offers">';
 
   getOffersByType(offersAll, type).forEach((offer) => {
     result += `<div class="event__offer-selector">
@@ -21,11 +36,15 @@ const createOffersList = (offersAll, routeOffers, type) => {
     </label>
   </div>`;
   });
+
+  result += '</div></section>';
+
+
   return result;
 };
 
 const createPicturesList = (pics) => {
-  if (pics.length === 0) {
+  if (!pics || pics.length === 0) {
     return '';
   }
 
@@ -46,7 +65,19 @@ const createDestinationList = (destinations) => {
   return result;
 };
 
-const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, offersAll, destinationsAll }) => `
+const createDestinationSection = (destination) => {
+  if (!destination) {
+    return '';
+  }
+
+  return `<section class="event__section  event__section--destination">
+    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+    <p class="event__destination-description">${destination.name} ${destination.description}</p>
+      ${createPicturesList(destination.pictures)}
+  </section>`;
+};
+
+const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, offersAll, destinations, isAddForm }) => `
 <li class="trip-events__item">
           <form class="event event--edit" action="#" method="post">
             <header class="event__header">
@@ -113,9 +144,9 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
                 <label class="event__label  event__type-output" for="event-destination-1">
                   ${type}
                 </label>
-                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
+                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination ? destination.name : ''}" list="destination-list-1">
                 <datalist id="destination-list-1">
-                  ${createDestinationList(destinationsAll)}
+                  ${createDestinationList(destinations)}
                 </datalist>
               </div>
 
@@ -132,29 +163,16 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
                   <span class="visually-hidden">Price</span>
                   &euro;
                 </label>
-                <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
+                <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}">
               </div>
 
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-              <button class="event__reset-btn" type="reset">Delete</button>
-              <button class="event__rollup-btn" type="button">
-                <span class="visually-hidden">Open event</span>
-              </button>
+              <button class="event__reset-btn" type="reset">${isAddForm ? 'Cancel' : 'Delete'}</button>
+              ${isAddForm ? '' : '<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>'}
             </header>
             <section class="event__details">
-              <section class="event__section  event__section--offers">
-                <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-                <div class="event__available-offers">
-                  ${createOffersList(offersAll, offers, type)}
-                </div>
-              </section>
-
-              <section class="event__section  event__section--destination">
-                <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                <p class="event__destination-description">${destination.name} ${destination.description}</p>
-                ${createPicturesList(destination.pictures)}
-              </section>
+              ${createOffersSection(offersAll, offers, type)}
+              ${createDestinationSection(destination)}
             </section>
           </form>
         </li>
@@ -162,20 +180,28 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
 
 export default class EditRouteFormView extends AbstractStatefulView {
   #offersAll;
-  #destinationsAll;
-  #submitClickHandler;
+  #destinations;
+  #handleSubmit;
   #arrowClickHandler;
+  #resetHandler;
 
-  #datepickers;
+  #datepickerFrom;
+  #datepickerTo;
 
-  constructor({ route, offers, destinations, onSubmitClick, onArrowClick }) {
+  #isAddForm;
+
+  constructor({ route = BLANK_ROUTE, isAddForm = false, offers, destinations, onReset, onSubmit, onArrowClick }) {
     super();
+    getRouteTimeframe(route);
     this._setState(route);
     this.#offersAll = offers;
-    this.#destinationsAll = destinations;
+    this.#destinations = destinations;
 
-    this.#submitClickHandler = wrapHandler(onSubmitClick);
+    this.#handleSubmit = onSubmit;
     this.#arrowClickHandler = wrapHandler(onArrowClick);
+    this.#resetHandler = wrapHandler(onReset);
+
+    this.#isAddForm = isAddForm;
 
     this.#setDatePickers();
 
@@ -183,36 +209,101 @@ export default class EditRouteFormView extends AbstractStatefulView {
   }
 
   get template() {
-    return createTemplate({ ...this._state, offersAll: this.#offersAll, destinationsAll: this.#destinationsAll });
+    return createTemplate({ ...this._state, offersAll: this.#offersAll, destinations: this.#destinations, isAddForm: this.#isAddForm });
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    this.#datepickerFrom.destroy();
+    this.#datepickerTo.destroy();
   }
 
   #setDatePickers() {
-    this.#datepickers = flatpickr(this.element.querySelectorAll('.event__input--time'), { enableTime: true, 'time_24hr': true, dateFormat:'d/m/y H:i' });
+    this.#datepickerFrom = flatpickr(this.element.querySelectorAll('#event-start-time-1'), { enableTime: true, 'time_24hr': true, dateFormat: 'd/m/y H:i', onChange: this.#dateFromChangeHandler });
+    this.#datepickerTo = flatpickr(this.element.querySelectorAll('#event-end-time-1'), { enableTime: true, 'time_24hr': true, dateFormat: 'd/m/y H:i', onChange: this.#dateToChangeHandler });
   }
 
   _restoreHandlers() {
-    this.element.querySelector('form').addEventListener('submit', this.#submitClickHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
-    this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeChangeHandler);
+    this.element.querySelector('form').addEventListener('submit', this.#submitHandler);
+    this.element.querySelector('form').addEventListener('reset', this.#resetHandler);
+    this.element.querySelector('.event__type-group').addEventListener('click', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('input', this.#priceInputHandler);
+
+    if (getOffersByType(this.#offersAll, this._state.type).length > 0) {
+      this.element.querySelector('.event__available-offers').addEventListener('input', this.#offersChangeHandler);
+    }
+    if (!this.#isAddForm) {
+      this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
+    }
+
+    this.#setDatePickers();
   }
 
-  #eventTypeChangeHandler = (evt) => {
+  #resetOffers = () => {
+    this._state.offers = [];
+  };
+
+  #typeChangeHandler = (evt) => {
     evt.preventDefault();
     if (evt.target.tagName === 'LABEL') {
-      this._state.type = evt.target.dataset.eventType;
-      this.updateElement(this._state);
+      this.updateElement({ type: evt.target.dataset.eventType });
+    }
+
+    this.#resetOffers();
+  };
+
+  #offersChangeHandler = (evt) => {
+    evt.preventDefault();
+    if (evt.target.tagName !== 'INPUT') {
+      return;
+    }
+
+    const selectedOfferID = evt.target.id.replace('event-offer-', '');
+    const offerIndex = this._state.offers.indexOf(selectedOfferID);
+    if (offerIndex === -1) {
+      this._state.offers.push(selectedOfferID);
+    } else {
+      this._state.splice(offerIndex, 1);
     }
   };
 
   #destinationChangeHandler = (evt) => {
     evt.preventDefault();
-    const result = this.#destinationsAll.find((destination) => destination.name === evt.target.value);
+    const result = this.#destinations.find((destination) => destination.name === evt.target.value);
 
     if (result) {
-      this._state.destination = result;
-      this.updateElement(this._state);
+      this.updateElement({ destination: result });
     }
   };
+
+  #priceInputHandler = (evt) => {
+    evt.preventDefault();
+
+    this._state.price = evt.target.value;
+  };
+
+  #dateFromChangeHandler = ([userDate]) => {
+    this.updateElement({ dateFrom: userDate });
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateElement({ dateTo: userDate });
+  };
+
+  #submitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleSubmit(this._state);
+  };
+  // static parseStateToRoute = (state) => {
+  //   const route = { ...state };
+
+
+  // };
+
+  // static parseRouteToState = (route) => {
+
+  // };
 }
 

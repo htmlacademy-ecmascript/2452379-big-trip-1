@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { humanizeDate, calcEventDuration, getOffersByType } from '../utils/views.js';
+import { humanizeDate, calcEventDuration, getOffersByType } from '../utils/routes.js';
 import { wrapHandler } from '../utils/common.js';
 
 const getRouteImageName = (type) => type.toLowerCase().concat('.png');
