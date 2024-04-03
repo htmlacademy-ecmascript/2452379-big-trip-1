@@ -1,13 +1,29 @@
-import { getRandomRoutes } from '../mock/routes.js';
 import Observable from '../framework/observable.js';
-
-const ROUTES_COUNT = 5;
+import RoutesApiService from '../api/routes-api-service.js';
+import { UpdateType } from '../const.js';
 
 export default class RoutesModel extends Observable {
-  #routes = new Map(getRandomRoutes(ROUTES_COUNT).map((route) => [route.id, route]));
+  #routesApiService;
+  #routes = new Map();
+
+  constructor(routesApiService) {
+    super();
+    this.#routesApiService = routesApiService;
+  }
 
   get routes() {
     return this.#routes;
+  }
+
+  init() {
+    this.#routesApiService.routes
+      .then((response) => {
+        this.#routes = new Map(
+          response.map((route) => [route.id, RoutesApiService.adaptToClient(route)])
+        );
+
+        this._notify(UpdateType.INIT);
+      });
   }
 
   updateRoute(updateType, update) {
@@ -15,9 +31,11 @@ export default class RoutesModel extends Observable {
       throw new Error(`Route with ${update.id} is not exist`);
     }
 
-    this.#routes.set(update.id, update);
-
-    this._notify(updateType, update);
+    this.#routesApiService.updateRoute(RoutesApiService.adaptToServer(update))
+      .then(() => {
+        this.#routes.set(update.id, update);
+        this._notify(updateType, update);
+      });
   }
 
   addRoute(updateType, update) {

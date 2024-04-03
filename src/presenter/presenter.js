@@ -1,16 +1,13 @@
-import DestinationsModel from '../model/destinations.js';
-import OffersModel from '../model/offers.js';
-import RoutesModel from '../model/routes.js';
 import AddRoutePresenter from './add-route-presenter.js';
 import RoutesContainerView from '../view/routes-container.js';
 import FiltersFormView from '../view/filters-form.js';
 import SortsFormView from '../view/sorts-form.js';
-import NoRoutesView from '../view/no-routes-view.js';
+import RoutesMessageView from '../view/routes-message-view.js';
 import RoutePresenter from './route-presenter.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
 import { SortMethods } from '../utils/sorts.js';
 import { FilterMethods } from '../utils/filters.js';
-import { UpdateType, UserAction } from '../const.js';
+import { UpdateType, UserAction, MessageTypes } from '../const.js';
 
 export default class Presenter {
   #routesModel;
@@ -20,7 +17,7 @@ export default class Presenter {
   #routePresenters;
   #addRoutePresenter;
   #routesContainerView;
-  #noRoutesView;
+  #routesMessageView;
 
   #filtersFormView;
   #sortsFormView;
@@ -30,8 +27,10 @@ export default class Presenter {
   #currentSort;
   #currentFilter;
 
-  constructor() {
-    this.#initModels();
+  #isLoading;
+
+  constructor({ routesModel, offersModel, destinationsModel }) {
+    this.#initModels(routesModel, offersModel, destinationsModel);
     this.#initViews();
 
     this.#routePresenters = new Map();
@@ -43,16 +42,17 @@ export default class Presenter {
     this.#addRouteBtn = document.querySelector('.trip-main__event-add-btn');
 
     this.#addRouteBtn.addEventListener('click', this.#handleAddFormClick);
+    this.#isLoading = true;
   }
 
   get routes() {
     return this.#routesModel.routes;
   }
 
-  #initModels() {
-    this.#routesModel = new RoutesModel();
-    this.#offersModel = new OffersModel();
-    this.#destinationsModel = new DestinationsModel();
+  #initModels(routesModel, offersModel, destinationsModel) {
+    this.#routesModel = routesModel;
+    this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
 
     this.#routesModel.addObserver(this.#handleModelEvent);
   }
@@ -73,15 +73,21 @@ export default class Presenter {
   }
 
   #renderRoutes() {
-    const filteredRoutes = [...this.routes].map(([ , route]) => route).filter(this.#currentFilter);
-
-    if (this.#noRoutesView?.element) {
-      remove(this.#noRoutesView);
+    if (this.#routesMessageView?.element) {
+      remove(this.#routesMessageView);
     }
 
-    if (!filteredRoutes.length) {
-      this.#noRoutesView = new NoRoutesView(this.#currentFilter.name);
-      render(this.#noRoutesView, this.#routesContainerView.element);
+    if (this.#isLoading) {
+      this.#routesMessageView = new RoutesMessageView(MessageTypes.loading);
+      render(this.#routesMessageView, this.#routesContainerView.element);
+      return;
+    }
+
+    const filteredRoutes = [...this.routes].map(([, route]) => route).filter(this.#currentFilter);
+
+    if (!filteredRoutes.length && !this.#addRoutePresenter.isOpened) {
+      this.#routesMessageView = new RoutesMessageView(MessageTypes[this.#currentFilter.name]);
+      render(this.#routesMessageView, this.#routesContainerView.element);
       return;
     }
 
@@ -124,7 +130,9 @@ export default class Presenter {
         this.#clearRoutesList();
         this.#renderRoutes();
         break;
-      case UpdateType.MAJOR:
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        this.#renderRoutes();
         break;
     }
   };
@@ -159,8 +167,14 @@ export default class Presenter {
   };
 
   #openAddRouteForm = () => {
+    if (this.#addRoutePresenter.isOpened) {
+      return;
+    }
+
     this.#addRoutePresenter.init();
     this.#addRouteBtn.disabled = true;
+    this.#clearRoutesList();
+    this.#renderRoutes();
   };
 
   #closeAddRouteForm = () => {
@@ -181,5 +195,7 @@ export default class Presenter {
 
   #handleDestroy = () => {
     this.#addRouteBtn.disabled = false;
+    this.#clearRoutesList();
+    this.#renderRoutes();
   };
 }

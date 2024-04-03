@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { humanizeDate, getOffersByType, getRouteTimeframe } from '../utils/routes.js';
+import { humanizeDate, getDestinationById, getOffersByType, getRouteTimeframe } from '../utils/routes.js';
 import { wrapHandler } from '../utils/common.js';
 import flatpickr from 'flatpickr';
 
@@ -77,8 +77,10 @@ const createDestinationSection = (destination) => {
   </section>`;
 };
 
-const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, offersAll, destinations, isAddForm }) => `
-<li class="trip-events__item">
+const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, offersAll, destinationsAll, isAddForm }) =>
+{
+  destination = getDestinationById(destinationsAll, destination);
+  return `<li class="trip-events__item">
           <form class="event event--edit" action="#" method="post">
             <header class="event__header">
               <div class="event__type-wrapper">
@@ -146,7 +148,7 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
                 </label>
                 <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination ? destination.name : ''}" list="destination-list-1">
                 <datalist id="destination-list-1">
-                  ${createDestinationList(destinations)}
+                  ${createDestinationList(destinationsAll)}
                 </datalist>
               </div>
 
@@ -177,10 +179,11 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
           </form>
         </li>
 `.replace(`value="${type.toLowerCase()}"`, `value="${type.toLowerCase()}" checked`);
+};
 
 export default class EditRouteFormView extends AbstractStatefulView {
   #offersAll;
-  #destinations;
+  #destinationsAll;
   #handleSubmit;
   #arrowClickHandler;
   #resetHandler;
@@ -195,7 +198,7 @@ export default class EditRouteFormView extends AbstractStatefulView {
     getRouteTimeframe(route);
     this._setState(route);
     this.#offersAll = offers;
-    this.#destinations = destinations;
+    this.#destinationsAll = destinations;
 
     this.#handleSubmit = onSubmit;
     this.#arrowClickHandler = wrapHandler(onArrowClick);
@@ -209,7 +212,7 @@ export default class EditRouteFormView extends AbstractStatefulView {
   }
 
   get template() {
-    return createTemplate({ ...this._state, offersAll: this.#offersAll, destinations: this.#destinations, isAddForm: this.#isAddForm });
+    return createTemplate({ ...this._state, offersAll: this.#offersAll, destinationsAll: this.#destinationsAll, isAddForm: this.#isAddForm });
   }
 
   removeElement() {
@@ -248,7 +251,7 @@ export default class EditRouteFormView extends AbstractStatefulView {
   #typeChangeHandler = (evt) => {
     evt.preventDefault();
     if (evt.target.tagName === 'LABEL') {
-      this.updateElement({ type: evt.target.dataset.eventType });
+      this.updateElement({ type: evt.target.dataset.eventType.toLowerCase() });
     }
 
     this.#resetOffers();
@@ -271,10 +274,10 @@ export default class EditRouteFormView extends AbstractStatefulView {
 
   #destinationChangeHandler = (evt) => {
     evt.preventDefault();
-    const result = this.#destinations.find((destination) => destination.name === evt.target.value);
+    const result = this.#destinationsAll.find((destination) => destination.name === evt.target.value);
 
     if (result) {
-      this.updateElement({ destination: result });
+      this.updateElement({ destination: result.id });
     }
   };
 
@@ -296,14 +299,5 @@ export default class EditRouteFormView extends AbstractStatefulView {
     evt.preventDefault();
     this.#handleSubmit(this._state);
   };
-  // static parseStateToRoute = (state) => {
-  //   const route = { ...state };
-
-
-  // };
-
-  // static parseRouteToState = (route) => {
-
-  // };
 }
 
