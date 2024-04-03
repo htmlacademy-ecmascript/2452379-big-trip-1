@@ -77,8 +77,7 @@ const createDestinationSection = (destination) => {
   </section>`;
 };
 
-const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, offersAll, destinationsAll, isAddForm }) =>
-{
+const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, offersAll, destinationsAll, isAddForm }) => {
   destination = getDestinationById(destinationsAll, destination);
   return `<li class="trip-events__item">
           <form class="event event--edit" action="#" method="post">

@@ -1,5 +1,5 @@
 import EditRouteFormView from '../view/edit-route-form';
-import { render, replace, remove, RenderPosition } from '../framework/render.js';
+import { render, remove, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
 import { onEscKeydownDo } from '../utils/common.js';
 import { nanoid } from 'nanoid';
