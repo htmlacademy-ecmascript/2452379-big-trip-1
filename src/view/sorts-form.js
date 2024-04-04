@@ -23,7 +23,7 @@ export default class SortsFormView extends AbstractView {
     super();
 
     this.#currentSort = this.element.querySelector(`.trip-sort__item--${SortTypes[0].type}`);
-    this.#currentSort.checked = true;
+    this.#currentSort.querySelector('input').checked = true;
 
     this.#handleSortChange = onSortChange;
     this.element.addEventListener('click', wrapHandler(this.#sortChangeHandler));

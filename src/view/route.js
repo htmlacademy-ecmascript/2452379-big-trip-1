@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { humanizeDate, calcEventDuration, getOffersByType } from '../utils/routes.js';
+import { humanizeDate, calcEventDuration, getOffersByType, getDestinationById } from '../utils/routes.js';
 import { wrapHandler } from '../utils/common.js';
 
 const getRouteImageName = (type) => type.toLowerCase().concat('.png');
@@ -9,7 +9,7 @@ const createOffersList = (offersAll, routeOffers, type) => {
   const offersByType = getOffersByType(offersAll, type);
 
   routeOffers.forEach((offerID) => {
-    const offer = offersByType.find(({id}) => id === offerID);
+    const offer = offersByType.find(({ id }) => id === offerID);
 
     result += `<li class="event__offer">
     <span class="event__offer-title">${offer.title}</span>
@@ -20,13 +20,13 @@ const createOffersList = (offersAll, routeOffers, type) => {
   return result;
 };
 
-const createTemplate = ({type, destination, dateFrom, dateTo, offers, price, isFavorite, offersAll}) => `
+const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, isFavorite, offersAll, destinationsAll }) => `
 <li class="trip-events__item"><div class="event">
 <time class="event__date" datetime="${dateFrom}">${humanizeDate(dateFrom, 'eventDate')}</time>
 <div class="event__type">
   <img class="event__type-icon" width="42" height="42" src="img/icons/${getRouteImageName(type)}" alt="Event type icon">
 </div>
-<h3 class="event__title">${type} ${destination.name}</h3>
+<h3 class="event__title">${type} ${getDestinationById(destinationsAll, destination).name}</h3>
 <div class="event__schedule">
   <p class="event__time">
     <time class="event__start-time" datetime="${dateFrom}">${humanizeDate(Date.parse(dateFrom), 'eventTime')}</time>
@@ -57,17 +57,19 @@ const createTemplate = ({type, destination, dateFrom, dateTo, offers, price, isF
 export default class RouteView extends AbstractView {
   #route;
   #offersAll;
+  #destinationsAll;
 
-  constructor({ route, offers, onArrowClick, onFavoriteClick }) {
+  constructor({ route, offers, destinations, onArrowClick, onFavoriteClick }) {
     super();
     this.#route = route;
     this.#offersAll = offers;
+    this.#destinationsAll = destinations;
 
     this.element.querySelector('.event__rollup-btn').addEventListener('click', wrapHandler(onArrowClick));
     this.element.querySelector('.event__favorite-btn').addEventListener('click', wrapHandler(onFavoriteClick));
   }
 
   get template() {
-    return createTemplate({...this.#route, offersAll: this.#offersAll});
+    return createTemplate({ ...this.#route, offersAll: this.#offersAll, destinationsAll: this.#destinationsAll });
   }
 }

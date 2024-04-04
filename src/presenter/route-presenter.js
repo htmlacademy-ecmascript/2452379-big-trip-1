@@ -37,7 +37,7 @@ export default class RoutePresenter {
     const prevRouteView = this.#routeView;
     const prevEditRouteView = this.#editRouteView;
 
-    this.#routeView = new RouteView({ route: this.#route, offers: RoutePresenter.#offers, onArrowClick: this.#handleOpenEditClick, onFavoriteClick: this.#handleFavoriteClick });
+    this.#routeView = new RouteView({ route: this.#route, offers: RoutePresenter.#offers, destinations: RoutePresenter.#destinations, onArrowClick: this.#handleOpenEditClick, onFavoriteClick: this.#handleFavoriteClick });
     this.#editRouteView = new EditRouteFormView({ route: this.#route, offers: RoutePresenter.#offers, destinations: RoutePresenter.#destinations, onReset: this.#handleDeleteClick, onSubmit: this.#handleSubmit, onArrowClick: this.#handleCloseEditClick });
 
     if (!prevRouteView || !prevEditRouteView) {

@@ -7,7 +7,7 @@ const UserAction = {
 const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
-  MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
 const SortTypes = [
@@ -30,6 +30,7 @@ const MessageTypes = {
   'present': 'There are no present events now',
   'future': 'There are no future events now',
   'past': 'There are no past events now',
+  'loading': 'Loading...'
 };
 
 export { SortTypes, UserAction, UpdateType, FilterTypes, MessageTypes };

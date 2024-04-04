@@ -45,6 +45,8 @@ const getOffersByType = (offers, type) => {
   return offersByType === undefined ? [] : offersByType.offers;
 };
 
+const getDestinationById = (destinations, id) => destinations.find((destination) => destination.id === id);
+
 const areDatesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB, 'D');
 
-export { humanizeDate, getOffersByType, calcEventDuration, areDatesEqual, getRouteTimeframe };
+export { humanizeDate, getOffersByType, calcEventDuration, areDatesEqual, getRouteTimeframe, getDestinationById };
