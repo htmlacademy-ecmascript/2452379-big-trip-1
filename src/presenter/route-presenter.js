@@ -19,7 +19,7 @@ export default class RoutePresenter {
   static #offers = null;
   static #destinations = null;
 
-  constructor({routesContainer, offers, destinations, handleDataChange, handleEditorOpen}) {
+  constructor({ routesContainer, offers, destinations, handleDataChange, handleEditorOpen }) {
     if (!RoutePresenter.#offers) {
       RoutePresenter.#offers = offers;
     }
@@ -38,19 +38,18 @@ export default class RoutePresenter {
     const prevEditRouteView = this.#editRouteView;
 
     this.#routeView = new RouteView({ route: this.#route, offers: RoutePresenter.#offers, destinations: RoutePresenter.#destinations, onArrowClick: this.#handleOpenEditClick, onFavoriteClick: this.#handleFavoriteClick });
-    this.#editRouteView = new EditRouteFormView({ route: this.#route, offers: RoutePresenter.#offers, destinations: RoutePresenter.#destinations, onReset: this.#handleDeleteClick, onSubmit: this.#handleSubmit, onArrowClick: this.#handleCloseEditClick });
+    this.#editRouteView = new EditRouteFormView({ route: EditRouteFormView.parseRouteToState(this.#route), offers: RoutePresenter.#offers, destinations: RoutePresenter.#destinations, onReset: this.#handleDeleteClick, onSubmit: this.#handleSubmit, onArrowClick: this.#handleCloseEditClick });
 
     if (!prevRouteView || !prevEditRouteView) {
       render(this.#routeView, this.#routesContainer.element);
       return;
     }
 
-    if (this.#routesContainer.element.contains(prevRouteView.element)){
+    if (this.#isEditOpen) {
+      replace(this.#routeView, prevEditRouteView);
+      this.#isEditOpen = false;
+    } else {
       replace(this.#routeView, prevRouteView);
-    }
-
-    if (this.#routesContainer.element.contains(prevEditRouteView.element)){
-      replace(this.#editRouteView, prevEditRouteView);
     }
 
     remove(prevRouteView);
@@ -58,7 +57,7 @@ export default class RoutePresenter {
   }
 
   resetView() {
-    if(this.#isEditOpen) {
+    if (this.#isEditOpen) {
       this.#replaceFormToRoute();
     }
   }
@@ -68,10 +67,35 @@ export default class RoutePresenter {
     remove(this.#editRouteView);
   }
 
+  setSaving() {
+    if (this.#isEditOpen) {
+      this.#editRouteView.updateElement({
+        isDisabled: true,
+        isSaving: true
+      });
+    }
+  }
+
+  setDeleting() {
+    this.#editRouteView.updateElement({
+      isDisabled: true,
+      isDeleting: true
+    });
+  }
+
+  setAborting() {
+    const resetState = () => this.#editRouteView.updateElement({ isDisabled: false, isSaving: false, isDeleting: false });
+    if (this.#isEditOpen) {
+      this.#editRouteView.shake(resetState);
+    } else {
+      this.#routeView.shake();
+    }
+  }
+
   #replaceRouteToForm() {
+    this.#handleEditorOpen();
     replace(this.#editRouteView, this.#routeView);
     document.addEventListener('keydown', this.#escKeydownHandler);
-    this.#handleEditorOpen();
     this.#isEditOpen = true;
   }
 
@@ -94,8 +118,9 @@ export default class RoutePresenter {
     this.#replaceFormToRoute();
   };
 
-  #handleFavoriteClick = () => {
-    this.#dataChangeHandler(UserAction.UPDATE_TASK, UpdateType.PATCH, { ...this.#route, isFavorite: !this.#route.isFavorite});
+  #handleFavoriteClick = (evt) => {
+    evt.preventDefault();
+    this.#dataChangeHandler(UserAction.UPDATE_TASK, UpdateType.PATCH, { ...this.#route, isFavorite: !this.#route.isFavorite });
   };
 
   #handleDeleteClick = () => {
@@ -106,7 +131,5 @@ export default class RoutePresenter {
     const updateType = areDatesEqual(this.#route.dateFrom, update.dateFrom) ? UpdateType.PATCH : UpdateType.MINOR;
 
     this.#dataChangeHandler(UserAction.UPDATE_TASK, updateType, { ...this.#route, ...update });
-    this.#handleEditorOpen();
-    this.#isEditOpen = false;
   };
 }

@@ -33,4 +33,9 @@ const MessageTypes = {
   'loading': 'Loading...'
 };
 
-export { SortTypes, UserAction, UpdateType, FilterTypes, MessageTypes };
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
+export { SortTypes, UserAction, UpdateType, FilterTypes, MessageTypes, TimeLimit };

@@ -4,7 +4,7 @@ import { UpdateType } from '../const.js';
 
 export default class RoutesModel extends Observable {
   #routesApiService;
-  #routes = new Map();
+  #routes;
 
   constructor(routesApiService) {
     super();
@@ -15,38 +15,52 @@ export default class RoutesModel extends Observable {
     return this.#routes;
   }
 
-  init() {
-    this.#routesApiService.routes
-      .then((response) => {
-        this.#routes = new Map(
-          response.map((route) => [route.id, RoutesApiService.adaptToClient(route)])
-        );
+  async init() {
+    try {
+      const response = await this.#routesApiService.routes;
+      this.#routes = new Map(
+        response.map((route) => [route.id, RoutesApiService.adaptToClient(route)])
+      );
+    } catch {
+      this.#routes = new Map();
+    }
 
-        this._notify(UpdateType.INIT);
-      });
+    this._notify(UpdateType.INIT);
   }
 
-  updateRoute(updateType, update) {
+  async updateRoute(updateType, update) {
     if (!this.#routes.get(update.id)) {
       throw new Error(`Route with ${update.id} is not exist`);
     }
+    try {
+      const response = RoutesApiService.adaptToClient(await this.#routesApiService.updateRoute(RoutesApiService.adaptToServer(update)));
 
-    this.#routesApiService.updateRoute(RoutesApiService.adaptToServer(update))
-      .then(() => {
-        this.#routes.set(update.id, update);
-        this._notify(updateType, update);
-      });
+      this.#routes.set(response.id, response);
+      this._notify(updateType, response);
+    } catch (err) {
+      throw new Error('Can\'t update route');
+    }
   }
 
-  addRoute(updateType, update) {
-    this.#routes.set(update.id, update);
+  async addRoute(updateType, update) {
+    try {
+      const response = RoutesApiService.adaptToClient(await this.#routesApiService.addRoute(RoutesApiService.adaptToServer(update)));
 
-    this._notify(updateType, update);
+      this.#routes.set(response.id, response);
+      this._notify(updateType, response);
+    } catch {
+      throw new Error('Can\'t add route');
+    }
   }
 
-  deleteRoute(updateType, update) {
-    this.#routes.delete(update.id);
+  async deleteRoute(updateType, update) {
+    try {
+      await this.#routesApiService.deleteRoute(RoutesApiService.adaptToServer(update));
 
-    this._notify(updateType, update);
+      this.#routes.delete(update.id);
+      this._notify(updateType, update);
+    } catch {
+      throw new Error('Can\'t delete route');
+    }
   }
 }

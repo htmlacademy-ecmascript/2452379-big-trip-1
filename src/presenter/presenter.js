@@ -1,3 +1,5 @@
+import UIBlocker from '../framework/ui-blocker/ui-blocker.js';
+
 import AddRoutePresenter from './add-route-presenter.js';
 import RoutesContainerView from '../view/routes-container.js';
 import FiltersFormView from '../view/filters-form.js';
@@ -7,7 +9,7 @@ import RoutePresenter from './route-presenter.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
 import { SortMethods } from '../utils/sorts.js';
 import { FilterMethods } from '../utils/filters.js';
-import { UpdateType, UserAction, MessageTypes } from '../const.js';
+import { UpdateType, UserAction, MessageTypes, TimeLimit } from '../const.js';
 
 export default class Presenter {
   #routesModel;
@@ -23,6 +25,8 @@ export default class Presenter {
   #sortsFormView;
 
   #addRouteBtn;
+
+  #uiBlocker;
 
   #currentSort;
   #currentFilter;
@@ -43,6 +47,11 @@ export default class Presenter {
 
     this.#addRouteBtn.addEventListener('click', this.#handleAddFormClick);
     this.#isLoading = true;
+
+    this.#uiBlocker = new UIBlocker({
+      lowerLimit: TimeLimit.LOWER_LIMIT,
+      upperLimit: TimeLimit.UPPER_LIMIT
+    });
   }
 
   get routes() {
@@ -107,18 +116,37 @@ export default class Presenter {
     this.#routePresenters.set(route.id, routePresenter);
   }
 
-  #handleViewAction = (userAction, updateType, update) => {
+  #handleViewAction = async (userAction, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (userAction) {
       case UserAction.ADD_TASK:
-        this.#routesModel.addRoute(updateType, update);
+        this.#addRoutePresenter.setSaving();
+        try {
+          await this.#routesModel.addRoute(updateType, update);
+        } catch {
+          this.#addRoutePresenter.setAborting();
+        }
         break;
       case UserAction.UPDATE_TASK:
-        this.#routesModel.updateRoute(updateType, update);
+        this.#routePresenters.get(update.id).setSaving();
+        try {
+          await this.#routesModel.updateRoute(updateType, update);
+        } catch {
+          this.#routePresenters.get(update.id).setAborting();
+        }
         break;
       case UserAction.DELETE_TASK:
-        this.#routesModel.deleteRoute(updateType, update);
+        this.#routePresenters.get(update.id).setDeleting();
+        try {
+          await this.#routesModel.deleteRoute(updateType, update);
+        } catch {
+          this.#routePresenters.get(update.id).setAborting();
+        }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
@@ -127,6 +155,7 @@ export default class Presenter {
         this.#routePresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
+        this.#closeAddRouteForm();
         this.#clearRoutesList();
         this.#renderRoutes();
         break;
@@ -167,14 +196,13 @@ export default class Presenter {
   };
 
   #openAddRouteForm = () => {
+    this.#resetRoutePresenters();
     if (this.#addRoutePresenter.isOpened) {
       return;
     }
 
     this.#addRoutePresenter.init();
     this.#addRouteBtn.disabled = true;
-    this.#clearRoutesList();
-    this.#renderRoutes();
   };
 
   #closeAddRouteForm = () => {
@@ -195,7 +223,5 @@ export default class Presenter {
 
   #handleDestroy = () => {
     this.#addRouteBtn.disabled = false;
-    this.#clearRoutesList();
-    this.#renderRoutes();
   };
 }
