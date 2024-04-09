@@ -5,17 +5,32 @@ import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
-const BLANK_ROUTE = {
+const BLANK_ROUTE_STATE = {
   price: 0,
   dateFrom: '',
   dateTo: '',
   destination: null,
   isFavorite: false,
-  type: 'Flight',
-  offers: []
+  type: 'flight',
+  offers: [],
+
+  isDisabled: false,
+  isSaving: false,
+  isDeleting: false
 };
 
 const getRouteImageName = (type) => type.toLowerCase().concat('.png');
+const getResetBtnText = (isAddForm, isDeleting) => {
+  if (isAddForm) {
+    return 'Cancel';
+  } else{
+    if (isDeleting) {
+      return 'Deleting...';
+    } else {
+      return 'Delete';
+    }
+  }
+};
 
 const createOffersSection = (offersAll, routeOffers, type) => {
   const offersByType = getOffersByType(offersAll, type);
@@ -77,7 +92,7 @@ const createDestinationSection = (destination) => {
   </section>`;
 };
 
-const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, offersAll, destinationsAll, isAddForm }) => {
+const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, offersAll, destinationsAll, isAddForm, isDisabled, isDeleting, isSaving }) => {
   destination = getDestinationById(destinationsAll, destination);
   return `<li class="trip-events__item">
           <form class="event event--edit" action="#" method="post">
@@ -87,10 +102,10 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
                   <span class="visually-hidden">Choose event type</span>
                   <img class="event__type-icon" width="17" height="17" src="img/icons/${getRouteImageName(type)}" alt="Event type icon">
                 </label>
-                <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+                <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${ isDisabled ? 'disabled' : '' }>
 
                 <div class="event__type-list">
-                  <fieldset class="event__type-group">
+                  <fieldset class="event__type-group" ${ isDisabled ? 'disabled' : '' }>
                     <legend class="visually-hidden">Event type</legend>
 
                     <div class="event__type-item">
@@ -145,7 +160,7 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
                 <label class="event__label  event__type-output" for="event-destination-1">
                   ${type}
                 </label>
-                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination ? destination.name : ''}" list="destination-list-1">
+                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination ? destination.name : ''}" list="destination-list-1" ${ isDisabled ? 'disabled' : '' }>
                 <datalist id="destination-list-1">
                   ${createDestinationList(destinationsAll)}
                 </datalist>
@@ -153,10 +168,10 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
 
               <div class="event__field-group  event__field-group--time">
                 <label class="visually-hidden" for="event-start-time-1">From</label>
-                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeDate(dateFrom, 'eventEditDatetime')}">
+                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeDate(dateFrom, 'eventEditDatetime')}" ${ isDisabled ? 'disabled' : '' }>
                 &mdash;
                 <label class="visually-hidden" for="event-end-time-1">To</label>
-                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeDate(dateTo, 'eventEditDatetime')}">
+                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeDate(dateTo, 'eventEditDatetime')}" ${ isDisabled ? 'disabled' : '' }>
               </div>
 
               <div class="event__field-group  event__field-group--price">
@@ -164,12 +179,12 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
                   <span class="visually-hidden">Price</span>
                   &euro;
                 </label>
-                <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}">
+                <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}" ${ isDisabled ? 'disabled' : '' }>
               </div>
 
-              <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-              <button class="event__reset-btn" type="reset">${isAddForm ? 'Cancel' : 'Delete'}</button>
-              ${isAddForm ? '' : '<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>'}
+              <button class="event__save-btn  btn  btn--blue" type="submit" ${ isDisabled ? 'disabled' : '' }>${ isSaving ? 'Saving...' : 'Save' }</button>
+              <button class="event__reset-btn" type="reset" ${ isDisabled ? 'disabled' : '' }>${ getResetBtnText(isAddForm, isDeleting) }</button>
+              ${isAddForm ? '' : `<button class="event__rollup-btn" type="button" ${ isDisabled ? 'disabled' : '' }><span class="visually-hidden">Open event</span></button>`}
             </header>
             <section class="event__details">
               ${createOffersSection(offersAll, offers, type)}
@@ -192,7 +207,7 @@ export default class EditRouteFormView extends AbstractStatefulView {
 
   #isAddForm;
 
-  constructor({ route = BLANK_ROUTE, isAddForm = false, offers, destinations, onReset, onSubmit, onArrowClick }) {
+  constructor({ route = BLANK_ROUTE_STATE, isAddForm = false, offers, destinations, onReset, onSubmit, onArrowClick }) {
     super();
     getRouteTimeframe(route);
     this._setState(route);
@@ -267,7 +282,7 @@ export default class EditRouteFormView extends AbstractStatefulView {
     if (offerIndex === -1) {
       this._state.offers.push(selectedOfferID);
     } else {
-      this._state.splice(offerIndex, 1);
+      this._state.offers.splice(offerIndex, 1);
     }
   };
 
@@ -296,7 +311,24 @@ export default class EditRouteFormView extends AbstractStatefulView {
 
   #submitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleSubmit(this._state);
+    this.#handleSubmit(EditRouteFormView.parseStateToRoute(this._state));
   };
+
+  static parseRouteToState(route) {
+    return {
+      ...route,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false
+    };
+  }
+
+  static parseStateToRoute(state) {
+    delete state.isDisabled;
+    delete state.isSaving;
+    delete state.isDeleting;
+
+    return state;
+  }
 }
 

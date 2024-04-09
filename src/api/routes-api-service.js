@@ -5,6 +5,26 @@ export default class RoutesApiService extends ApiService {
     return this._load({url: 'points'}).then(RoutesApiService.parseResponse);
   }
 
+  addRoute = async (newRoute) => {
+    const response = await this._load({
+      url: 'points',
+      method: 'POST',
+      body: JSON.stringify(newRoute),
+      headers: new Headers({'Content-Type': 'application/json'})
+    });
+
+    return await RoutesApiService.parseResponse(response);
+  };
+
+  deleteRoute = async (route) => {
+    const response = await this._load({
+      url: `points/${route.id}`,
+      method: 'DELETE'
+    });
+
+    return response;
+  };
+
   updateRoute = async (update) => {
     const response = await this._load({
       url: `points/${update.id}`,
