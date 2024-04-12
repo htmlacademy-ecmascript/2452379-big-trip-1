@@ -1,5 +1,4 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { wrapHandler } from '../utils/common.js';
 import { SortTypes } from '../const.js';
 
 const createTemplate = () => {
@@ -26,7 +25,7 @@ export default class SortsFormView extends AbstractView {
     this.#currentSort.querySelector('input').checked = true;
 
     this.#handleSortChange = onSortChange;
-    this.element.addEventListener('click', wrapHandler(this.#sortChangeHandler));
+    this.element.addEventListener('click', this.#sortChangeHandler);
   }
 
   get template() {
@@ -43,6 +42,8 @@ export default class SortsFormView extends AbstractView {
   }
 
   #sortChangeHandler = (evt) => {
+    evt.preventDefault();
+
     if (evt.target.tagName !== 'LABEL') {
       return;
     }

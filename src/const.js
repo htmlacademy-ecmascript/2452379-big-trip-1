@@ -38,4 +38,11 @@ const TimeLimit = {
   UPPER_LIMIT: 1000,
 };
 
-export { SortTypes, UserAction, UpdateType, FilterTypes, MessageTypes, TimeLimit };
+const DATE_FORMAT = {
+  eventTime: 'HH:mm',
+  eventDate: 'DD MMM',
+  eventEditDatetime: 'DD/MM/YY HH:mm',
+  travelInfo: 'DD MMM /YY'
+};
+
+export { SortTypes, UserAction, UpdateType, FilterTypes, MessageTypes, TimeLimit, DATE_FORMAT };

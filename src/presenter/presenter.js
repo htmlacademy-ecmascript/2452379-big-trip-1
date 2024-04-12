@@ -1,10 +1,11 @@
 import UIBlocker from '../framework/ui-blocker/ui-blocker.js';
-
-import AddRoutePresenter from './add-route-presenter.js';
+import AddRouteView from '../view/add-route.js';
 import RoutesContainerView from '../view/routes-container.js';
-import FiltersFormView from '../view/filters-form.js';
 import SortsFormView from '../view/sorts-form.js';
 import RoutesMessageView from '../view/routes-message-view.js';
+import TravelInfoPresenter from '../presenter/travel-info-presenter.js';
+import FilterPresenter from './filter-presenter.js';
+import AddRoutePresenter from './add-route-presenter.js';
 import RoutePresenter from './route-presenter.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
 import { SortMethods } from '../utils/sorts.js';
@@ -18,13 +19,14 @@ export default class Presenter {
 
   #routePresenters;
   #addRoutePresenter;
+  #filterPresenter;
+  #travelInfoPresenter;
+
   #routesContainerView;
   #routesMessageView;
-
-  #filtersFormView;
   #sortsFormView;
 
-  #addRouteBtn;
+  #addRouteView;
 
   #uiBlocker;
 
@@ -38,14 +40,13 @@ export default class Presenter {
     this.#initViews();
 
     this.#routePresenters = new Map();
+    this.#travelInfoPresenter = new TravelInfoPresenter({ container: document.querySelector('.trip-main'), routesModel: this.#routesModel, destinationsModel: this.#destinationsModel, offersModel: this.#offersModel });
     this.#addRoutePresenter = new AddRoutePresenter({ container: this.#routesContainerView, offersModel: this.#offersModel, destinationsModel: this.#destinationsModel, handleDataChange: this.#handleViewAction, handleEditorOpen: this.#resetRoutePresenters, handleDestroy: this.#handleDestroy });
+    this.#filterPresenter = new FilterPresenter({ routesModel: this.#routesModel, containter: document.querySelector('.trip-controls__filters'), onFilterChange: this.#handleFilterChange });
 
     this.#currentSort = SortMethods.day;
     this.#currentFilter = FilterMethods.everything;
 
-    this.#addRouteBtn = document.querySelector('.trip-main__event-add-btn');
-
-    this.#addRouteBtn.addEventListener('click', this.#handleAddFormClick);
     this.#isLoading = true;
 
     this.#uiBlocker = new UIBlocker({
@@ -67,14 +68,12 @@ export default class Presenter {
   }
 
   #initViews() {
-    this.#filtersFormView = new FiltersFormView({ onFilterChange: this.#handleFilterChange });
-    this.#sortsFormView = new SortsFormView({ onSortChange: this.#handleSortChange });
-
     this.#routesContainerView = new RoutesContainerView();
+    this.#addRouteView = new AddRouteView({ handleClick: this.#handleAddFormClick});
+    this.#sortsFormView = new SortsFormView({ onSortChange: this.#handleSortChange });
   }
 
   present() {
-    render(this.#filtersFormView, document.querySelector('.trip-controls__filters'));
     render(this.#sortsFormView, document.querySelector('.trip-events'));
     render(this.#routesContainerView, this.#sortsFormView.element, RenderPosition.AFTEREND);
 
@@ -158,9 +157,12 @@ export default class Presenter {
         this.#closeAddRouteForm();
         this.#clearRoutesList();
         this.#renderRoutes();
+        this.#travelInfoPresenter.init();
         break;
       case UpdateType.INIT:
         this.#isLoading = false;
+        render(this.#addRouteView, document.querySelector('.trip-main'));
+        this.#travelInfoPresenter.init();
         this.#renderRoutes();
         break;
     }
@@ -202,7 +204,7 @@ export default class Presenter {
     }
 
     this.#addRoutePresenter.init();
-    this.#addRouteBtn.disabled = true;
+    this.#addRouteView.disable();
   };
 
   #closeAddRouteForm = () => {
@@ -217,11 +219,11 @@ export default class Presenter {
     evt.preventDefault();
     this.#resetRoutePresenters();
     this.#sortsFormView.init();
-    this.#filtersFormView.init();
+    this.#filterPresenter.init({ reset: true });
     this.#openAddRouteForm();
   };
 
   #handleDestroy = () => {
-    this.#addRouteBtn.disabled = false;
+    this.#addRouteView.enable();
   };
 }
