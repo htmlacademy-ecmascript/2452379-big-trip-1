@@ -33,7 +33,7 @@ export default class AddRoutePresenter {
       return;
     }
 
-    this.#editRouteView = new EditRouteFormView({ offers: this.#offersModel.offers, destinations: this.#destinationsModel.destinations, onSubmit: this.#handleSubmit, handleEditorOpen: this.#handleEditorOpen, isAddForm: true, onReset: this.#handleReset });
+    this.#editRouteView = new EditRouteFormView({ offers: this.#offersModel.offers, destinations: this.#destinationsModel.destinations, handleSubmit: this.#handleSubmit, handleEditorOpen: this.#handleEditorOpen, isAddForm: true, onReset: this.#handleReset });
 
     document.addEventListener('keydown', this.#escKeydownHandler);
 
