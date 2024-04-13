@@ -1,7 +1,6 @@
 import EditRouteFormView from '../view/edit-route-form';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
-import { onEscKeydownDo } from '../utils/common.js';
 
 export default class AddRoutePresenter {
   #container;
@@ -33,7 +32,7 @@ export default class AddRoutePresenter {
       return;
     }
 
-    this.#editRouteView = new EditRouteFormView({ offers: this.#offersModel.offers, destinations: this.#destinationsModel.destinations, handleSubmit: this.#handleSubmit, handleEditorOpen: this.#handleEditorOpen, isAddForm: true, onReset: this.#handleReset });
+    this.#editRouteView = new EditRouteFormView({ offers: this.#offersModel.offers, destinations: this.#destinationsModel.destinations, handleSubmit: this.#handleSubmit, handleEditorOpen: this.#handleEditorOpen, isAddForm: true, handleReset: this.#handleReset });
 
     document.addEventListener('keydown', this.#escKeydownHandler);
 
@@ -69,5 +68,10 @@ export default class AddRoutePresenter {
     this.#dataChangeHandler(UserAction.ADD_TASK, UpdateType.MINOR, newRoute);
   };
 
-  #escKeydownHandler = onEscKeydownDo(() => this.destroy());
+  #escKeydownHandler = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      this.destroy();
+    }
+  };
 }

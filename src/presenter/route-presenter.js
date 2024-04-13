@@ -2,7 +2,6 @@ import EditRouteFormView from '../view/edit-route-form';
 import RouteView from '../view/route.js';
 import { render, replace, remove } from '../framework/render.js';
 import { areDatesEqual, arePricesEqual } from '../utils/routes.js';
-import { onEscKeydownDo } from '../utils/common.js';
 import { UserAction, UpdateType } from '../const.js';
 
 export default class RoutePresenter {
@@ -107,10 +106,13 @@ export default class RoutePresenter {
     this.#isEditOpen = false;
   }
 
-  #escKeydownHandler = onEscKeydownDo(() => {
-    this.#replaceFormToRoute(this.#routeView, this.#editRouteView);
-    document.removeEventListener('keydown', this.#escKeydownHandler);
-  });
+  #escKeydownHandler = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#replaceFormToRoute(this.#routeView, this.#editRouteView);
+      document.removeEventListener('keydown', this.#escKeydownHandler);
+    }
+  };
 
   #handleOpenEditClick = (evt) => {
     evt.preventDefault();
