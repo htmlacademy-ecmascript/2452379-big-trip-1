@@ -73,7 +73,7 @@ export default class Presenter {
     this.#sortsFormView = new SortsFormView({ onSortChange: this.#handleSortChange });
   }
 
-  present() {
+  init() {
     render(this.#sortsFormView, document.querySelector('.trip-events'));
     render(this.#routesContainerView, this.#sortsFormView.element, RenderPosition.AFTEREND);
 
