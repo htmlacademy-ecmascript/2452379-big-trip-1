@@ -1,5 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { humanizeDate, calcEventDuration, getOffersByType, getDestinationById } from '../utils/routes.js';
+import { getOffersByType, getDestinationById } from '../utils/routes.js';
+import { humanizeDate, calcEventDuration } from '../utils/dates.js';
 import { DATE_FORMAT } from '../const.js';
 
 const getRouteImageName = (type) => type.toLowerCase().concat('.png');
