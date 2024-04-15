@@ -1,8 +1,11 @@
 import TravelInfoView from '../view/travel-info.js';
 import { SortMethods } from '../utils/sorts.js';
-import { getDestinationById, getRoutePrice, humanizeDate } from '../utils/routes.js';
+import { getDestinationById, getRoutePrice } from '../utils/routes.js';
+import { humanizeDate } from '../utils/dates.js';
 import { DATE_FORMAT } from '../const.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
+
+const TRAVEL_ROUTE_DESTINATIONS_COUNT = 4;
 
 const getTravelRoute = (routes, destinationsAll) => {
   if (routes.length === 0) {
@@ -14,7 +17,7 @@ const getTravelRoute = (routes, destinationsAll) => {
 
   destinations.forEach((destination) => result[result.length - 1] !== destination && result.push(destination));
 
-  if (result.length < 4) {
+  if (result.length < TRAVEL_ROUTE_DESTINATIONS_COUNT) {
     return result.reverse().join(' — ');
   } else {
     return `${result[result.length - 1]} —...— ${result[0]}`;

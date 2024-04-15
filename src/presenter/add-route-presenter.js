@@ -1,5 +1,6 @@
 import EditRouteFormView from '../view/edit-route-form';
 import { render, remove, RenderPosition } from '../framework/render.js';
+import { onEscDo } from '../utils/common.js';
 import { UserAction, UpdateType } from '../const.js';
 
 export default class AddRoutePresenter {
@@ -68,10 +69,5 @@ export default class AddRoutePresenter {
     this.#dataChangeHandler(UserAction.ADD_TASK, UpdateType.MINOR, newRoute);
   };
 
-  #escKeydownHandler = (evt) => {
-    if (evt.key === 'Escape') {
-      evt.preventDefault();
-      this.destroy();
-    }
-  };
+  #escKeydownHandler = onEscDo(() => this.destroy());
 }

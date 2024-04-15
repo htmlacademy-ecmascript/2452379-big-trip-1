@@ -1,4 +1,4 @@
-import { getRouteTimeframe } from './routes.js';
+import { getRouteTimeframe } from './dates.js';
 
 const FilterMethods = {
   'everything': () => true,
