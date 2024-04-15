@@ -19,7 +19,7 @@ const presenter = new Presenter({
   destinationsModel
 });
 
-presenter.present();
+presenter.init();
 Promise.all([ offersModel.init(), destinationsModel.init()])
   .then(() => routesModel.init());
 

@@ -1,6 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { humanizeDate, calcEventDuration, getOffersByType, getDestinationById } from '../utils/routes.js';
-import { wrapHandler } from '../utils/common.js';
+import { getOffersByType, getDestinationById } from '../utils/routes.js';
+import { humanizeDate, calcEventDuration } from '../utils/dates.js';
+import { DATE_FORMAT } from '../const.js';
 
 const getRouteImageName = (type) => type.toLowerCase().concat('.png');
 
@@ -22,16 +23,16 @@ const createOffersList = (offersAll, routeOffers, type) => {
 
 const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, isFavorite, offersAll, destinationsAll }) => `
 <li class="trip-events__item"><div class="event">
-<time class="event__date" datetime="${dateFrom}">${humanizeDate(dateFrom, 'eventDate')}</time>
+<time class="event__date" datetime="${dateFrom}">${humanizeDate(dateFrom, DATE_FORMAT.eventDate)}</time>
 <div class="event__type">
   <img class="event__type-icon" width="42" height="42" src="img/icons/${getRouteImageName(type)}" alt="Event type icon">
 </div>
 <h3 class="event__title">${type} ${getDestinationById(destinationsAll, destination).name}</h3>
 <div class="event__schedule">
   <p class="event__time">
-    <time class="event__start-time" datetime="${dateFrom}">${humanizeDate(Date.parse(dateFrom), 'eventTime')}</time>
+    <time class="event__start-time" datetime="${dateFrom}">${humanizeDate(Date.parse(dateFrom), DATE_FORMAT.eventTime)}</time>
     &mdash;
-    <time class="event__end-time" datetime="${dateTo}">${humanizeDate(Date.parse(dateTo), 'eventTime')}</time>
+    <time class="event__end-time" datetime="${dateTo}">${humanizeDate(Date.parse(dateTo), DATE_FORMAT.eventTime)}</time>
   </p>
   <p class="event__duration">${calcEventDuration(dateFrom, dateTo)}</p>
 </div>
@@ -59,14 +60,14 @@ export default class RouteView extends AbstractView {
   #offersAll;
   #destinationsAll;
 
-  constructor({ route, offers, destinations, onArrowClick, onFavoriteClick }) {
+  constructor({ route, offers, destinations, handleArrowClick, handleFavoriteClick }) {
     super();
     this.#route = route;
     this.#offersAll = offers;
     this.#destinationsAll = destinations;
 
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', wrapHandler(onArrowClick));
-    this.element.querySelector('.event__favorite-btn').addEventListener('click', wrapHandler(onFavoriteClick));
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', handleArrowClick);
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', handleFavoriteClick);
   }
 
   get template() {

@@ -1,6 +1,7 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { humanizeDate, getDestinationById, getOffersByType, getRouteTimeframe } from '../utils/routes.js';
-import { wrapHandler } from '../utils/common.js';
+import { getDestinationById, getOffersByType } from '../utils/routes.js';
+import { humanizeDate } from '../utils/dates.js';
+import { DATE_FORMAT } from '../const.js';
 import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/flatpickr.min.css';
@@ -168,10 +169,10 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
 
               <div class="event__field-group  event__field-group--time">
                 <label class="visually-hidden" for="event-start-time-1">From</label>
-                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeDate(dateFrom, 'eventEditDatetime')}" ${ isDisabled ? 'disabled' : '' }>
+                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeDate(dateFrom, DATE_FORMAT.eventEditDatetime)}" ${ isDisabled ? 'disabled' : '' }>
                 &mdash;
                 <label class="visually-hidden" for="event-end-time-1">To</label>
-                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeDate(dateTo, 'eventEditDatetime')}" ${ isDisabled ? 'disabled' : '' }>
+                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeDate(dateTo, DATE_FORMAT.eventEditDatetime)}" ${ isDisabled ? 'disabled' : '' }>
               </div>
 
               <div class="event__field-group  event__field-group--price">
@@ -207,16 +208,15 @@ export default class EditRouteFormView extends AbstractStatefulView {
 
   #isAddForm;
 
-  constructor({ route = BLANK_ROUTE_STATE, isAddForm = false, offers, destinations, onReset, onSubmit, onArrowClick }) {
+  constructor({ route = BLANK_ROUTE_STATE, isAddForm = false, offers, destinations, handleReset, handleSubmit, handleArrowClick }) {
     super();
-    getRouteTimeframe(route);
     this._setState(route);
     this.#offersAll = offers;
     this.#destinationsAll = destinations;
 
-    this.#handleSubmit = onSubmit;
-    this.#arrowClickHandler = wrapHandler(onArrowClick);
-    this.#resetHandler = wrapHandler(onReset);
+    this.#handleSubmit = handleSubmit;
+    this.#arrowClickHandler = handleArrowClick;
+    this.#resetHandler = handleReset;
 
     this.#isAddForm = isAddForm;
 

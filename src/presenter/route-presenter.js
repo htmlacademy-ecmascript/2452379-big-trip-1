@@ -1,9 +1,10 @@
 import EditRouteFormView from '../view/edit-route-form';
 import RouteView from '../view/route.js';
 import { render, replace, remove } from '../framework/render.js';
-import { areDatesEqual } from '../utils/routes.js';
-import { onEscKeydownDo } from '../utils/common.js';
+import { arePricesEqual } from '../utils/routes.js';
+import { areDatesEqual } from '../utils/dates.js';
 import { UserAction, UpdateType } from '../const.js';
+import { onEscDo } from '../utils/common.js';
 
 export default class RoutePresenter {
   #routesContainer;
@@ -11,6 +12,8 @@ export default class RoutePresenter {
   #routeView;
   #editRouteView;
 
+  #offersModel;
+  #destinationsModel;
   #isEditOpen = false;
 
   #dataChangeHandler;
@@ -37,8 +40,8 @@ export default class RoutePresenter {
     const prevRouteView = this.#routeView;
     const prevEditRouteView = this.#editRouteView;
 
-    this.#routeView = new RouteView({ route: this.#route, offers: RoutePresenter.#offers, destinations: RoutePresenter.#destinations, onArrowClick: this.#handleOpenEditClick, onFavoriteClick: this.#handleFavoriteClick });
-    this.#editRouteView = new EditRouteFormView({ route: EditRouteFormView.parseRouteToState(this.#route), offers: RoutePresenter.#offers, destinations: RoutePresenter.#destinations, onReset: this.#handleDeleteClick, onSubmit: this.#handleSubmit, onArrowClick: this.#handleCloseEditClick });
+    this.#routeView = new RouteView({ route: this.#route, offers: RoutePresenter.#offers, destinations: RoutePresenter.#destinations, handleArrowClick: this.#handleOpenEditClick, handleFavoriteClick: this.#handleFavoriteClick });
+    this.#editRouteView = new EditRouteFormView({ route: EditRouteFormView.parseRouteToState(this.#route), offers: RoutePresenter.#offers, destinations: RoutePresenter.#destinations, handleReset: this.#handleDeleteClick, handleSubmit: this.#handleSubmit, handleArrowClick: this.#handleCloseEditClick });
 
     if (!prevRouteView || !prevEditRouteView) {
       render(this.#routeView, this.#routesContainer.element);
@@ -105,12 +108,13 @@ export default class RoutePresenter {
     this.#isEditOpen = false;
   }
 
-  #escKeydownHandler = onEscKeydownDo(() => {
+  #escKeydownHandler = onEscDo(() => {
     this.#replaceFormToRoute(this.#routeView, this.#editRouteView);
     document.removeEventListener('keydown', this.#escKeydownHandler);
   });
 
-  #handleOpenEditClick = () => {
+  #handleOpenEditClick = (evt) => {
+    evt.preventDefault();
     this.#replaceRouteToForm();
   };
 
@@ -128,7 +132,14 @@ export default class RoutePresenter {
   };
 
   #handleSubmit = (update) => {
-    const updateType = areDatesEqual(this.#route.dateFrom, update.dateFrom) ? UpdateType.PATCH : UpdateType.MINOR;
+    let updateType = UpdateType.MINOR;
+    if (
+      areDatesEqual(this.#route.dateFrom, update.dateFrom) &&
+      arePricesEqual(this.#route, update, RoutePresenter.#offers) &&
+      this.#route.destination === update.destination
+    ) {
+      updateType = UpdateType.PATCH;
+    }
 
     this.#dataChangeHandler(UserAction.UPDATE_TASK, updateType, { ...this.#route, ...update });
   };
