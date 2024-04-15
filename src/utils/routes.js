@@ -3,17 +3,11 @@ import duration from 'dayjs/plugin/duration';
 
 dayjs.extend(duration);
 
-const DATE_FORMAT = {
-  eventTime: 'HH:mm',
-  eventDate: 'DD MMM',
-  eventEditDatetime: 'DD/MM/YY HH:mm'
-};
-
 const MSEC_IN_HOUR = 3600000;
 const MSEC_IN_DAY = 86400000;
 
 
-const humanizeDate = (date, format) => date ? dayjs(date).format(DATE_FORMAT[format]) : '';
+const humanizeDate = (date, format) => date ? dayjs(date).format(format) : '';
 
 const calcEventDuration = (dt1, dt2) => {
   const diff = dayjs(dt2).diff(dayjs(dt1));
@@ -40,6 +34,8 @@ const getRouteTimeframe = (route) => {
   return 0;
 };
 
+const getOfferById = (offers, id) => offers.find((offer) => offer.id === id);
+
 const getOffersByType = (offers, type) => {
   const offersByType = offers.find((offer) => offer.type === type);
   return offersByType === undefined ? [] : offersByType.offers;
@@ -47,6 +43,19 @@ const getOffersByType = (offers, type) => {
 
 const getDestinationById = (destinations, id) => destinations.find((destination) => destination.id === id);
 
+const getRoutePrice = (route, offers) => {
+  let result = route.price;
+
+  const offersByType = getOffersByType(offers, route.type);
+  route.offers.forEach((offer) => {
+    result += getOfferById(offersByType, offer).price;
+  });
+
+  return result;
+};
+
 const areDatesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB, 'D');
 
-export { humanizeDate, getOffersByType, calcEventDuration, areDatesEqual, getRouteTimeframe, getDestinationById };
+const arePricesEqual = (routeA, routeB, offers) => getRoutePrice(routeA, offers) === getRoutePrice(routeB, offers);
+
+export { humanizeDate, arePricesEqual, getRoutePrice, getOfferById, getOffersByType, calcEventDuration, areDatesEqual, getRouteTimeframe, getDestinationById };
