@@ -1,6 +1,6 @@
 const onEscDo = (cb) => ((evt) => {
-  evt.preventDefault();
   if (evt.key === 'Escape') {
+    evt.preventDefault();
     cb(evt);
   }
 });
