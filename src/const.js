@@ -1,14 +1,3 @@
-const UserAction = {
-  UPDATE_TASK: 'UPDATE_TASK',
-  ADD_TASK: 'ADD_TASK',
-  DELETE_TASK: 'DELETE_TASK',
-};
-
-const UpdateType = {
-  PATCH: 'PATCH',
-  MINOR: 'MINOR',
-  INIT: 'INIT',
-};
 
 const SortTypes = [
   { label: 'Day', type: 'day' },
@@ -43,6 +32,18 @@ const DATE_FORMAT = {
   eventDate: 'DD MMM',
   eventEditDatetime: 'DD/MM/YY HH:mm',
   travelInfo: 'DD MMM /YY'
+};
+
+const UserAction = {
+  UPDATE_TASK: 'UPDATE_TASK',
+  ADD_TASK: 'ADD_TASK',
+  DELETE_TASK: 'DELETE_TASK',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  INIT: 'INIT',
 };
 
 export { SortTypes, UserAction, UpdateType, FilterTypes, MessageTypes, TimeLimit, DATE_FORMAT };

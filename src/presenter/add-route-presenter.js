@@ -1,4 +1,4 @@
-import EditRouteFormView from '../view/edit-route-form';
+import EditRouteFormView from '../view/edit-route-form.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { onEscDo } from '../utils/common.js';
 import { UserAction, UpdateType } from '../const.js';

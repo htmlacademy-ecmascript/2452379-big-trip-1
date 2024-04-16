@@ -24,12 +24,8 @@ const getRouteImageName = (type) => type.toLowerCase().concat('.png');
 const getResetBtnText = (isAddForm, isDeleting) => {
   if (isAddForm) {
     return 'Cancel';
-  } else{
-    if (isDeleting) {
-      return 'Deleting...';
-    } else {
-      return 'Delete';
-    }
+  } else {
+    return isDeleting ? 'Deleting...' : 'Delete';
   }
 };
 
@@ -103,10 +99,10 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
                   <span class="visually-hidden">Choose event type</span>
                   <img class="event__type-icon" width="17" height="17" src="img/icons/${getRouteImageName(type)}" alt="Event type icon">
                 </label>
-                <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${ isDisabled ? 'disabled' : '' }>
+                <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? 'disabled' : ''}>
 
                 <div class="event__type-list">
-                  <fieldset class="event__type-group" ${ isDisabled ? 'disabled' : '' }>
+                  <fieldset class="event__type-group" ${isDisabled ? 'disabled' : ''}>
                     <legend class="visually-hidden">Event type</legend>
 
                     <div class="event__type-item">
@@ -161,7 +157,7 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
                 <label class="event__label  event__type-output" for="event-destination-1">
                   ${type}
                 </label>
-                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination ? destination.name : ''}" list="destination-list-1" ${ isDisabled ? 'disabled' : '' }>
+                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination ? destination.name : ''}" list="destination-list-1" ${isDisabled ? 'disabled' : ''}>
                 <datalist id="destination-list-1">
                   ${createDestinationList(destinationsAll)}
                 </datalist>
@@ -169,10 +165,10 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
 
               <div class="event__field-group  event__field-group--time">
                 <label class="visually-hidden" for="event-start-time-1">From</label>
-                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeDate(dateFrom, DATE_FORMAT.eventEditDatetime)}" ${ isDisabled ? 'disabled' : '' }>
+                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeDate(dateFrom, DATE_FORMAT.eventEditDatetime)}" ${isDisabled ? 'disabled' : ''}>
                 &mdash;
                 <label class="visually-hidden" for="event-end-time-1">To</label>
-                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeDate(dateTo, DATE_FORMAT.eventEditDatetime)}" ${ isDisabled ? 'disabled' : '' }>
+                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeDate(dateTo, DATE_FORMAT.eventEditDatetime)}" ${isDisabled ? 'disabled' : ''}>
               </div>
 
               <div class="event__field-group  event__field-group--price">
@@ -180,12 +176,12 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
                   <span class="visually-hidden">Price</span>
                   &euro;
                 </label>
-                <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}" ${ isDisabled ? 'disabled' : '' }>
+                <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}" ${isDisabled ? 'disabled' : ''}>
               </div>
 
-              <button class="event__save-btn  btn  btn--blue" type="submit" ${ isDisabled ? 'disabled' : '' }>${ isSaving ? 'Saving...' : 'Save' }</button>
-              <button class="event__reset-btn" type="reset" ${ isDisabled ? 'disabled' : '' }>${ getResetBtnText(isAddForm, isDeleting) }</button>
-              ${isAddForm ? '' : `<button class="event__rollup-btn" type="button" ${ isDisabled ? 'disabled' : '' }><span class="visually-hidden">Open event</span></button>`}
+              <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+              <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${getResetBtnText(isAddForm, isDeleting)}</button>
+              ${isAddForm ? '' : `<button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}><span class="visually-hidden">Open event</span></button>`}
             </header>
             <section class="event__details">
               ${createOffersSection(offersAll, offers, type)}
