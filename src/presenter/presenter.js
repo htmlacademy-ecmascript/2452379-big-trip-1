@@ -2,7 +2,7 @@ import UIBlocker from '../framework/ui-blocker/ui-blocker.js';
 import AddRouteView from '../view/add-route.js';
 import RoutesContainerView from '../view/routes-container.js';
 import SortsFormView from '../view/sorts-form.js';
-import RoutesMessageView from '../view/routes-message-view.js';
+import RoutesMessageView from '../view/routes-message.js';
 import TravelInfoPresenter from '../presenter/travel-info-presenter.js';
 import FilterPresenter from './filter-presenter.js';
 import AddRoutePresenter from './add-route-presenter.js';
