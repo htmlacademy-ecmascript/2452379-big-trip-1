@@ -23,6 +23,7 @@ export default class RoutesModel extends Observable {
       );
     } catch {
       this.#routes = new Map();
+      throw new Error('Can\'t load routes');
     }
 
     this._notify(UpdateType.INIT);

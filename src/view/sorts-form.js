@@ -3,10 +3,10 @@ import { SortTypes } from '../const.js';
 
 const createTemplate = () => {
   let result = '';
-  SortTypes.forEach(({ label, type, isDisabled }) => {
+  SortTypes.forEach(({ label, type }) => {
     result += `
     <div class="trip-sort__item  trip-sort__item--${type}" data-sort-type="${type}">
-      <input label="sort-${type}" class="trip-sort__input  visually-hidden" type="radio" label="trip-sort" value="sort-${type}" ${isDisabled ? 'disabled' : ''}>
+      <input label="sort-${type}" class="trip-sort__input  visually-hidden" type="radio" label="trip-sort" value="sort-${type}" disabled>
       <label class="trip-sort__btn" for="sort-${type}">${label}</label>
     </div>`;
   });
@@ -30,6 +30,14 @@ export default class SortsFormView extends AbstractView {
 
   get template() {
     return createTemplate();
+  }
+
+  enable() {
+    SortTypes.forEach(({ type, isDisabled }) => {
+      if (!isDisabled) {
+        this.element.querySelector(`.trip-sort__item--${type} input`).disabled = false;
+      }
+    });
   }
 
   init() {
