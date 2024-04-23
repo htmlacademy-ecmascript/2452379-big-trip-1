@@ -8,8 +8,8 @@ import 'flatpickr/dist/flatpickr.min.css';
 
 const BLANK_ROUTE_STATE = {
   price: 0,
-  dateFrom: '',
-  dateTo: '',
+  dateFrom: null,
+  dateTo: null,
   destination: null,
   isFavorite: false,
   type: 'flight',
@@ -24,9 +24,9 @@ const getRouteImageName = (type) => type.toLowerCase().concat('.png');
 const getResetBtnText = (isAddForm, isDeleting) => {
   if (isAddForm) {
     return 'Cancel';
-  } else {
-    return isDeleting ? 'Deleting...' : 'Delete';
   }
+
+  return isDeleting ? 'Deleting...' : 'Delete';
 };
 
 const createOffersSection = (offersAll, routeOffers, type) => {
@@ -157,7 +157,7 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
                 <label class="event__label  event__type-output" for="event-destination-1">
                   ${type}
                 </label>
-                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination ? destination.name : ''}" list="destination-list-1" ${isDisabled ? 'disabled' : ''}>
+                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination ? destination.name : ''}" list="destination-list-1" autocomplete="off" ${isDisabled ? 'disabled' : ''}>
                 <datalist id="destination-list-1">
                   ${createDestinationList(destinationsAll)}
                 </datalist>
@@ -233,8 +233,8 @@ export default class EditRouteFormView extends AbstractStatefulView {
   }
 
   #setDatePickers() {
-    this.#datepickerFrom = flatpickr(this.element.querySelectorAll('#event-start-time-1'), { enableTime: true, 'time_24hr': true, dateFormat: 'd/m/y H:i', onChange: this.#dateFromChangeHandler });
-    this.#datepickerTo = flatpickr(this.element.querySelectorAll('#event-end-time-1'), { enableTime: true, 'time_24hr': true, dateFormat: 'd/m/y H:i', onChange: this.#dateToChangeHandler });
+    this.#datepickerFrom = flatpickr(this.element.querySelectorAll('#event-start-time-1'), { enableTime: true, 'time_24hr': true, dateFormat: 'd/m/y H:i', maxDate: this._state.dateTo, onChange: this.#dateFromChangeHandler });
+    this.#datepickerTo = flatpickr(this.element.querySelectorAll('#event-end-time-1'), { enableTime: true, 'time_24hr': true, dateFormat: 'd/m/y H:i', minDate: this._state.dateFrom, onChange: this.#dateToChangeHandler });
   }
 
   _restoreHandlers() {

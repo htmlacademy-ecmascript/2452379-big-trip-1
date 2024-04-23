@@ -1,8 +1,7 @@
 import TravelInfoView from '../view/travel-info.js';
 import { SortMethods } from '../utils/sorts.js';
 import { getDestinationById, getRoutePrice } from '../utils/routes.js';
-import { humanizeDate } from '../utils/dates.js';
-import { DATE_FORMAT } from '../const.js';
+import { humanizeDate, areMonthesEqual, areYearsEqual } from '../utils/dates.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 
 const TRAVEL_ROUTE_DESTINATIONS_COUNT = 4;
@@ -18,15 +17,24 @@ const getTravelRoute = (routes, destinationsAll) => {
   destinations.forEach((destination) => result[result.length - 1] !== destination && result.push(destination));
 
   if (result.length < TRAVEL_ROUTE_DESTINATIONS_COUNT) {
-    return result.reverse().join(' — ');
-  } else {
-    return `${result[result.length - 1]} —...— ${result[0]}`;
+    return result.join(' — ');
   }
+
+  return `${result[0]} —...— ${result[result.length - 1]}`;
 };
 
 const getTravelDates = (routes) => {
   routes = [...routes].map(([, route]) => route).sort(SortMethods.day);
-  return `${humanizeDate(routes[routes.length - 1].dateFrom, DATE_FORMAT.travelInfo)} — ${humanizeDate(routes[0].dateTo, DATE_FORMAT.travelInfo)}`;
+  const dateA = routes[0].dateFrom;
+  const dateB = routes[routes.length - 1].dateTo;
+
+  if (areMonthesEqual(dateA, dateB)) {
+    return `${humanizeDate(dateA, 'DD')} — ${humanizeDate(dateB, 'DD MMM')}`;
+  } else if (areYearsEqual(dateA, dateB)) {
+    return `${humanizeDate(dateA, 'DD MMM')} — ${humanizeDate(dateB, 'DD MMM')}`;
+  }
+
+  return `${humanizeDate(dateA, 'DD MMM YY')} — ${humanizeDate(dateB, 'DD MMM YY')}`;
 };
 
 const getTravelCost = (routes, offers) => {
@@ -57,7 +65,7 @@ export default class TravelInfoPresenter {
   init() {
     remove(this.#travelInfoView);
 
-    if (!this.#routesModel.routes) {
+    if (!this.#routesModel.routes.size) {
       return;
     }
     render(this.#travelInfoView, this.#container, RenderPosition.AFTERBEGIN);

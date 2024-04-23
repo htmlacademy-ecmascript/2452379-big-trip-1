@@ -19,7 +19,8 @@ const MessageTypes = {
   'present': 'There are no present events now',
   'future': 'There are no future events now',
   'past': 'There are no past events now',
-  'loading': 'Loading...'
+  'loading': 'Loading...',
+  'error' : 'Error loading data.<br>Reload page or try again later'
 };
 
 const TimeLimit = {
@@ -30,8 +31,7 @@ const TimeLimit = {
 const DATE_FORMAT = {
   eventTime: 'HH:mm',
   eventDate: 'DD MMM',
-  eventEditDatetime: 'DD/MM/YY HH:mm',
-  travelInfo: 'DD MMM /YY'
+  eventEditDatetime: 'DD/MM/YY HH:mm'
 };
 
 const UserAction = {
@@ -43,7 +43,7 @@ const UserAction = {
 const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
-  INIT: 'INIT',
+  INIT: 'INIT'
 };
 
 export { SortTypes, UserAction, UpdateType, FilterTypes, MessageTypes, TimeLimit, DATE_FORMAT };
