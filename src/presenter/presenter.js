@@ -171,6 +171,7 @@ export default class Presenter {
       case UpdateType.INIT:
         this.#isLoading = false;
         render(this.#addRouteView, document.querySelector('.trip-main'));
+        this.#sortsFormView.enable();
         this.#travelInfoPresenter.init();
         this.#renderRoutesBoard();
         break;
