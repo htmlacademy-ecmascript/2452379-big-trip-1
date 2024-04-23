@@ -35,5 +35,7 @@ const getRouteTimeframe = (route) => {
 };
 
 const areDatesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB, 'D');
+const areMonthesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB, 'M');
+const areYearsEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB, 'y');
 
-export { humanizeDate, getRouteTimeframe, calcEventDuration, areDatesEqual };
+export { humanizeDate, getRouteTimeframe, calcEventDuration, areDatesEqual, areMonthesEqual, areYearsEqual };

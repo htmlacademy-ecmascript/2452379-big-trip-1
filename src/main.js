@@ -21,5 +21,6 @@ const presenter = new Presenter({
 
 presenter.init();
 Promise.all([ offersModel.init(), destinationsModel.init()])
-  .then(() => routesModel.init());
+  .then(() => routesModel.init())
+  .catch(() => presenter.showErrorMessage());
 

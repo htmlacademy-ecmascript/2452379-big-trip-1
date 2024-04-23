@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-function getWeightForNullDate(dateA, dateB) {
+const getWeightForNullDate = (dateA, dateB) => {
   if (dateA === null && dateB === null) {
     return 0;
   }
@@ -14,10 +14,10 @@ function getWeightForNullDate(dateA, dateB) {
   }
 
   return null;
-}
+};
 
 const SortMethods = {
-  'day': (routeA, routeB) => getWeightForNullDate(routeA.dateFrom, routeB.dateFrom) ?? dayjs(routeB.dateFrom).diff(dayjs(routeA.dateFrom)),
+  'day': (routeA, routeB) => getWeightForNullDate(routeA.dateFrom, routeB.dateFrom) ?? dayjs(routeA.dateFrom).diff(dayjs(routeB.dateFrom)),
   'time': (routeA, routeB) => dayjs(routeA.dateTo).diff(dayjs(routeA.dateFrom)) < dayjs(routeB.dateTo).diff(dayjs(routeB.dateFrom)),
   'price': (routeA, routeB) => routeA.price < routeB.price
 };

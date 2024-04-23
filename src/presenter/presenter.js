@@ -69,7 +69,7 @@ export default class Presenter {
 
   #initViews() {
     this.#routesContainerView = new RoutesContainerView();
-    this.#addRouteView = new AddRouteView({ handleClick: this.#handleAddFormClick});
+    this.#addRouteView = new AddRouteView({ handleClick: this.#handleAddFormClick });
     this.#sortsFormView = new SortsFormView({ onSortChange: this.#handleSortChange });
   }
 
@@ -77,10 +77,19 @@ export default class Presenter {
     render(this.#sortsFormView, document.querySelector('.trip-events'));
     render(this.#routesContainerView, this.#sortsFormView.element, RenderPosition.AFTEREND);
 
-    this.#renderRoutes();
+    this.#renderRoutesBoard();
   }
 
-  #renderRoutes() {
+  showErrorMessage() {
+    if (this.#routesMessageView?.element) {
+      remove(this.#routesMessageView);
+    }
+    this.#routesMessageView = new RoutesMessageView(MessageTypes['error']);
+    render(this.#routesMessageView, this.#routesContainerView.element);
+  }
+
+
+  #renderRoutesBoard() {
     if (this.#routesMessageView?.element) {
       remove(this.#routesMessageView);
     }
@@ -156,14 +165,14 @@ export default class Presenter {
       case UpdateType.MINOR:
         this.#closeAddRouteForm();
         this.#clearRoutesList();
-        this.#renderRoutes();
         this.#travelInfoPresenter.init();
+        this.#renderRoutesBoard();
         break;
       case UpdateType.INIT:
         this.#isLoading = false;
         render(this.#addRouteView, document.querySelector('.trip-main'));
         this.#travelInfoPresenter.init();
-        this.#renderRoutes();
+        this.#renderRoutesBoard();
         break;
     }
   };
@@ -184,7 +193,7 @@ export default class Presenter {
     }
     this.#currentSort = SortMethods[type];
     this.#clearRoutesList();
-    this.#renderRoutes();
+    this.#renderRoutesBoard();
   };
 
   #handleFilterChange = (type) => {
@@ -194,7 +203,7 @@ export default class Presenter {
     this.#currentFilter = FilterMethods[type];
     this.#sortsFormView.init();
     this.#clearRoutesList();
-    this.#renderRoutes();
+    this.#renderRoutesBoard();
   };
 
   #openAddRouteForm = () => {
