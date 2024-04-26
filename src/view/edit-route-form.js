@@ -1,6 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { getDestinationById, getOffersByType } from '../utils/routes.js';
-import { humanizeDate } from '../utils/dates.js';
+import { humanizeDate, getMaxDate, getMinDate } from '../utils/dates.js';
 import { DATE_FORMAT } from '../const.js';
 import flatpickr from 'flatpickr';
 
@@ -176,7 +176,7 @@ const createTemplate = ({ type, destination, dateFrom, dateTo, offers, price, of
                   <span class="visually-hidden">Price</span>
                   &euro;
                 </label>
-                <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}" ${isDisabled ? 'disabled' : ''}>
+                <input class="event__input  event__input--price" id="event-price-1" type="number" min="0.01" name="event-price" value="${price}" ${isDisabled ? 'disabled' : ''}>
               </div>
 
               <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
@@ -233,8 +233,8 @@ export default class EditRouteFormView extends AbstractStatefulView {
   }
 
   #setDatePickers() {
-    this.#datepickerFrom = flatpickr(this.element.querySelectorAll('#event-start-time-1'), { enableTime: true, 'time_24hr': true, dateFormat: 'd/m/y H:i', maxDate: this._state.dateTo, onChange: this.#dateFromChangeHandler });
-    this.#datepickerTo = flatpickr(this.element.querySelectorAll('#event-end-time-1'), { enableTime: true, 'time_24hr': true, dateFormat: 'd/m/y H:i', minDate: this._state.dateFrom, onChange: this.#dateToChangeHandler });
+    this.#datepickerFrom = flatpickr(this.element.querySelectorAll('#event-start-time-1'), { enableTime: true, 'time_24hr': true, dateFormat: 'd/m/y H:i', maxDate: getMaxDate(this._state.dateTo), onChange: this.#dateFromChangeHandler });
+    this.#datepickerTo = flatpickr(this.element.querySelectorAll('#event-end-time-1'), { enableTime: true, 'time_24hr': true, dateFormat: 'd/m/y H:i', minDate: getMinDate(this._state.dateFrom), onChange: this.#dateToChangeHandler });
   }
 
   _restoreHandlers() {

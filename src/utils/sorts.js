@@ -18,8 +18,8 @@ const getWeightForNullDate = (dateA, dateB) => {
 
 const SortMethods = {
   'day': (routeA, routeB) => getWeightForNullDate(routeA.dateFrom, routeB.dateFrom) ?? dayjs(routeA.dateFrom).diff(dayjs(routeB.dateFrom)),
-  'time': (routeA, routeB) => dayjs(routeA.dateTo).diff(dayjs(routeA.dateFrom)) < dayjs(routeB.dateTo).diff(dayjs(routeB.dateFrom)),
-  'price': (routeA, routeB) => routeA.price < routeB.price
+  'time': (routeA, routeB) => dayjs(routeB.dateTo).diff(dayjs(routeB.dateFrom)) - dayjs(routeA.dateTo).diff(dayjs(routeA.dateFrom)),
+  'price': (routeA, routeB) => routeB.price - routeA.price
 };
 
 export { SortMethods };
