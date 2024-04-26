@@ -38,4 +38,7 @@ const areDatesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB, 'D');
 const areMonthesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB, 'M');
 const areYearsEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB, 'y');
 
-export { humanizeDate, getRouteTimeframe, calcEventDuration, areDatesEqual, areMonthesEqual, areYearsEqual };
+const getMaxDate = (date) => date && dayjs(date).subtract(1, 's').toISOString();
+const getMinDate = (date) => date && dayjs(date).add(1, 's').toISOString();
+
+export { humanizeDate, getRouteTimeframe, calcEventDuration, areDatesEqual, areMonthesEqual, areYearsEqual, getMaxDate, getMinDate };

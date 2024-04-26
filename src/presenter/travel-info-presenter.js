@@ -29,9 +29,9 @@ const getTravelDates = (routes) => {
   const dateB = routes[routes.length - 1].dateTo;
 
   if (areMonthesEqual(dateA, dateB)) {
-    return `${humanizeDate(dateA, 'DD')} — ${humanizeDate(dateB, 'DD MMM')}`;
+    return `${humanizeDate(dateA, 'MMM DD')} — ${humanizeDate(dateB, 'DD')}`;
   } else if (areYearsEqual(dateA, dateB)) {
-    return `${humanizeDate(dateA, 'DD MMM')} — ${humanizeDate(dateB, 'DD MMM')}`;
+    return `${humanizeDate(dateA, 'MMM DD')} — ${humanizeDate(dateB, 'MMM DD')}`;
   }
 
   return `${humanizeDate(dateA, 'DD MMM YY')} — ${humanizeDate(dateB, 'DD MMM YY')}`;
